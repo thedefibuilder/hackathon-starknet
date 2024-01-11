@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
 import { auditJsonSchema, auditorAgent } from './agents/audit';
+import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
-import { AuditorResponse, BuildResponse, GeneratorPromptArgs } from './types';
+import { BuildResponse, GeneratorPromptArgs, Vulnerability } from './types';
 
 dotenv.config();
 
@@ -33,16 +34,15 @@ export class LlmService {
     return { ...responseData, code: smartContractCode };
   }
 
-  async callAuditorLLM(code: string, activeChainId: number): Promise<AuditorResponse> {
-    try {
-      const response = await auditorAgent().invoke({
-        code: code,
-      });
+  async callAuditorLLM(code: string): Promise<Vulnerability[]> {
+    const response = await auditorAgent().invoke({
+      code: code,
+    });
 
-      return { success: true, audits: auditJsonSchema.parse(response).audits };
-    } catch (error) {
-      console.log(error);
-      return { success: false, audits: [] };
-    }
+    return auditJsonSchema.parse(response).audits;
+  }
+
+  async callBuildResolverLLM(code: string, compilerError: string): Promise<string> {
+    return await buildResolverAgent('gpt-4-1106-preview').invoke({ code, compilerError });
   }
 }

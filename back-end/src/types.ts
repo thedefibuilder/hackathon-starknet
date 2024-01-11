@@ -17,8 +17,3 @@ export type Vulnerability = {
 };
 
 export type VulnerabilitySeverity = 'High' | 'Medium' | 'Low';
-
-export type AuditorResponse = {
-  success: boolean;
-  audits: Vulnerability[];
-};
