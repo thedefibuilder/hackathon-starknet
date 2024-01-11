@@ -11,7 +11,8 @@
   "author": "DeFi Builder thedefibuilder@gmail.com",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "langchain": "^0.1.2"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",
