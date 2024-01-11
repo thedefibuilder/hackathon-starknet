@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
+import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
-import { BuildResponse, GeneratorPromptArgs } from './types';
+import { AuditorResponse, BuildResponse, GeneratorPromptArgs } from './types';
 
 dotenv.config();
 
@@ -30,5 +31,18 @@ export class LlmService {
     const responseData = (await buildResponse.json()) as BuildResponse;
 
     return { ...responseData, code: smartContractCode };
+  }
+
+  async callAuditorLLM(code: string, activeChainId: number): Promise<AuditorResponse> {
+    try {
+      const response = await auditorAgent().invoke({
+        code: code,
+      });
+
+      return { success: true, audits: auditJsonSchema.parse(response).audits };
+    } catch (error) {
+      console.log(error);
+      return { success: false, audits: [] };
+    }
   }
 }

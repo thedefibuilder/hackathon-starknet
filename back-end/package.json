@@ -12,7 +12,9 @@
   "license": "LGPL-3.0-or-later",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "langchain": "^0.1.2"
+    "langchain": "^0.1.2",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.22.3"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",

@@ -9,3 +9,16 @@ export type BuildResponse = {
   artifact: unknown; // Hardhat Artifact
   code: string;
 };
+
+export type Vulnerability = {
+  title: string;
+  description: string;
+  severity: VulnerabilitySeverity;
+};
+
+export type VulnerabilitySeverity = 'High' | 'Medium' | 'Low';
+
+export type AuditorResponse = {
+  success: boolean;
+  audits: Vulnerability[];
+};
