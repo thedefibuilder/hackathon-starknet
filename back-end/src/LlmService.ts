@@ -9,13 +9,14 @@ import { BuildResponse, GeneratorPromptArgs, Vulnerability } from './types';
 dotenv.config();
 
 export class LlmService {
-  async callCairoGeneratorLLM(promptArgs: GeneratorPromptArgs): Promise<string> {
+  async callCairoGeneratorLLM(description: string, contractType: string): Promise<string> {
     const docs = readFileSync(__dirname + '/data/starknet-by-example.md', 'utf-8');
     const cairoGenerator = await cairoGeneratorAgent();
+
     return await cairoGenerator.invoke({
       docs,
-      description: promptArgs.description,
-      contractType: promptArgs.contractType,
+      description,
+      contractType,
     });
   }
 
