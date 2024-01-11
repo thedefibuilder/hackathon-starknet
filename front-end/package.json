@@ -1,16 +1,7 @@
 {
   "private": true,
-  "license": "MIT",
+  "license": "CC BY-NC-SA 4.0",
   "type": "module",
-  "author": {
-    "name": "Doinel Atanasiu",
-    "email": "doinel1atanasiu@gmail.com",
-    "url": "https://business-link.d1a.app"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/doinel1a/vite-react-ts-shadcn-ui"
-  },
   "scripts": {
     "postinstall": "playwright install",
     "dev": "vite",
@@ -41,8 +32,6 @@
   },
   "devDependencies": {
     "@builder.io/partytown": "^0.8.1",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@playwright/test": "^1.40.1",
     "@types/node": "^20.10.5",
@@ -63,8 +52,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-sonarjs": "^0.23.0",
     "eslint-plugin-unicorn": "^50.0.1",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.9",
