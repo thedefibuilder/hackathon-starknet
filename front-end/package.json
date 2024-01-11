@@ -2,15 +2,6 @@
   "private": true,
   "license": "MIT",
   "type": "module",
-  "author": {
-    "name": "Doinel Atanasiu",
-    "email": "doinel1atanasiu@gmail.com",
-    "url": "https://business-link.d1a.app"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/doinel1a/vite-react-ts-shadcn-ui"
-  },
   "scripts": {
     "postinstall": "playwright install",
     "dev": "vite",
