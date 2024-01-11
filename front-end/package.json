@@ -12,7 +12,7 @@
     "url": "https://github.com/doinel1a/vite-react-ts-shadcn-ui"
   },
   "scripts": {
-    "postinstall": "husky install && playwright install",
+    "postinstall": "playwright install",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
