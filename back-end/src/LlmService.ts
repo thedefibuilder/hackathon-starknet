@@ -2,30 +2,33 @@ import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
 import { cairoGeneratorAgent } from './agents/cairo-generate';
+import { BuildResponse, GeneratorPromptArgs } from './types';
 
 dotenv.config();
 
-export type GeneratorPromptArgs = {
-  description: string;
-  contractType: string;
-};
-
 export class LlmService {
-  async callCairoGeneratorLLM(promptArgs: GeneratorPromptArgs) {
+  async callCairoGeneratorLLM(promptArgs: GeneratorPromptArgs): Promise<string> {
     const docs = readFileSync(__dirname + '/data/starknet-by-example.md', 'utf-8');
     const cairoGenerator = await cairoGeneratorAgent();
-    const response = await cairoGenerator.invoke({
+    return await cairoGenerator.invoke({
       docs,
       description: promptArgs.description,
       contractType: promptArgs.contractType,
     });
-    console.log(response);
-    return response;
+  }
+
+  async buildCairoCode(smartContractCode: string): Promise<BuildResponse> {
+    const buildResponse = await fetch(`https://compiler-service.defibuilder.com/api/v1/starknet`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': process.env.X_API_KEY || '',
+      },
+      body: JSON.stringify({ code: smartContractCode }),
+    });
+
+    const responseData = (await buildResponse.json()) as BuildResponse;
+
+    return { ...responseData, code: smartContractCode };
   }
 }
-
-const llmService = new LlmService();
-llmService.callCairoGeneratorLLM({
-  description: 'Must have name XOX and symbol YOY and max supply of 1 million and minting price of 1 ETH',
-  contractType: 'ERC20 Token',
-});
