@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"license": "MIT",
+	"license": "CC BY-NC-SA 4.0",
 	"scripts": {
 		"postinstall": "npx husky install",
 		"lint": "cd front-end && npm run lint && cd ../genezio-back-end && npm run lint"
