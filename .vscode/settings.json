@@ -1,0 +1,3 @@
+{
+	"eslint.workingDirectories": ["./front-end", "./genezio-back-end"]
+}

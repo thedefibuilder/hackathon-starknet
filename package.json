@@ -1,0 +1,18 @@
+{
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"postinstall": "npx husky install",
+		"lint": "cd front-end && npm run lint && cd ../genezio-back-end && npm run lint"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^18.4.3",
+		"@commitlint/config-conventional": "^18.4.3",
+		"husky": "^8.0.3",
+		"lint-staged": "^15.2.0"
+	},
+	"lint-staged": {
+		"front-end/src/**/*.*": "",
+		"back-end/src/**/*.*": ""
+	}
+}
