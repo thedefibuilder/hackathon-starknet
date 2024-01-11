@@ -1,0 +1,28 @@
+{
+  "name": "back-end",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "lint": "npx eslint --ext ts ./src",
+    "lint:fix": "npx eslint --ext ts ./src --fix",
+    "prettier": "prettier --write ./src/**/*.ts"
+  },
+  "keywords": [],
+  "author": "DeFi Builder thedefibuilder@gmail.com",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^3.4.0",
+    "@types/node": "^20.11.0",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^8.10.0",
+    "prettier": "^2.8.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5"
+  }
+}

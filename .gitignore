@@ -1,0 +1,33 @@
+# dependencies
+**/node_modules
+**/package-lock.json
+**/yarn.lock
+# **/pnpm-lock.yaml
+/.pnp
+.pnp.js
+
+# production
+front-end/dist
+front-end/src/sdk
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+
+# local env files
+**/.env
+
+# editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
