@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
-import { BuildResponse, GeneratorPromptArgs, Vulnerability } from './types';
+import { BuildResponse, Vulnerability } from './types';
 
 dotenv.config();
 
@@ -44,6 +44,6 @@ export class LlmService {
   }
 
   async callBuildResolverLLM(code: string, compilerError: string): Promise<string> {
-    return await buildResolverAgent('gpt-4-1106-preview').invoke({ code, compilerError });
+    return await buildResolverAgent().invoke({ code, compilerError });
   }
 }

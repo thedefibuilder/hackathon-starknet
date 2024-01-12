@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
+    "start": "npx genezio local",
     "lint": "npx eslint --ext ts ./src",
     "lint:fix": "npx eslint --ext ts ./src --fix",
     "prettier": "prettier --write ./src/**/*.ts"
