@@ -1,24 +1,20 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Layout from './components/layout';
-import { Skeleton } from './components/ui/skeleton';
 import { Toaster } from './components/ui/toast/toaster';
-
-const HomePage = React.lazy(() => import('./pages/home'));
-const FourOuFourPage = React.lazy(() => import('./pages/four-ou-four'));
+import FourOuFourPage from './pages/four-ou-four';
+import HomePage from './pages/home';
 
 function App() {
   return (
     <BrowserRouter>
       <Layout>
-        <Suspense fallback={<Skeleton className='h-full w-full' />}>
-          <Routes>
-            <Route path='/' element={<HomePage />} />
-            <Route path='*' element={<FourOuFourPage />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='*' element={<FourOuFourPage />} />
+        </Routes>
 
         <Toaster />
       </Layout>
