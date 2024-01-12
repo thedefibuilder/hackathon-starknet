@@ -2,18 +2,14 @@ import React from 'react';
 
 import { BrowserRouter } from 'react-router-dom';
 
-import Footer from './components/footer';
-import Navbar from './components/navbar';
+import Layout from './components/layout';
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
-
-      <main className='flex h-full flex-col items-center justify-center'>
+      <Layout>
         <h1 className='text-2xl'>Starknet | DeFi Builder</h1>
-      </main>
-      <Footer />
+      </Layout>
     </BrowserRouter>
   );
 }
