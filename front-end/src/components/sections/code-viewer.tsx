@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
+
+import CopyButton from '../copy-button';
 import { Textarea } from '../ui/textarea';
 import SectionContainer from './container';
 
@@ -27,6 +30,13 @@ export default function CodeViewerSection({
           className='mt-5 h-96 w-full resize-none rounded-3xl p-5 focus-visible:ring-0'
           readOnly
         />
+
+        {isClipboardApiSupported && (
+          <CopyButton
+            onClick={async () => copyToClipboard(smartContractCode)}
+            buttonClassName='absolute right-20 top-5'
+          />
+        )}
       </div>
     </SectionContainer>
   );
