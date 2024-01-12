@@ -1,17 +1,22 @@
 import React from 'react';
 
-import { Link } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 
 export default function Footer() {
+  const website = 'https://defibuilder.com';
   const year = new Date().getFullYear();
 
   return (
     <footer className='flex h-10 w-full items-center justify-center border-t border-border text-sm'>
-      by &nbsp;
-      <Link to='https://business-link.d1a.app' className='text-primary'>
-        doinel1a
-      </Link>
-      &nbsp; {year}
+      made with &nbsp;
+      <Heart className='h-4 w-4 text-red-500' /> &nbsp; by the
+      <a
+        href={website}
+        className='px-1 transition-colors hover:text-primary focus-visible:text-primary'
+      >
+        DeFi Builder
+      </a>
+      team &nbsp; &copy; &nbsp; {year}
     </footer>
   );
 }
