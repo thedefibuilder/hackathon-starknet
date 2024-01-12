@@ -45,6 +45,13 @@ export default function HomePage() {
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
   const [prompt, setPrompt] = useState('');
+  const predefinedPrompts: IPredefinedPrompt[] = [
+    {
+      id: '65827f546828e956077b7545',
+      title: 'ERC20 Token',
+      description: 'Token name must be X , with ticket Y and a total supply of 100000.'
+    }
+  ];
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
@@ -67,7 +74,12 @@ export default function HomePage() {
         </Suspense>
 
         <Suspense fallback={<Skeleton className='h-60 w-full' />}>
-          <PromptSection chainsName={chainsName} prompt={prompt} setPrompt={setPrompt} />
+          <PromptSection
+            chainsName={chainsName}
+            predefinedPrompts={predefinedPrompts}
+            prompt={prompt}
+            setPrompt={setPrompt}
+          />
         </Suspense>
       </div>
     </div>
