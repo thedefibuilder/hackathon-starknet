@@ -4,8 +4,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Layout from './components/layout';
 import { Toaster } from './components/ui/toast/toaster';
-import FourOuFourPage from './pages/four-ou-four';
 import HomePage from './pages/home';
+import NotFoundPage from './pages/not-found';
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path='/' element={<HomePage />} />
-          <Route path='*' element={<FourOuFourPage />} />
+          <Route path='*' element={<NotFoundPage />} />
         </Routes>
 
         <Toaster />

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 
-export default function FourOuFourPage() {
+export default function NotFoundPage() {
   return (
     <div className='flex h-full w-full flex-col items-center justify-center gap-y-5'>
       <div className='flex flex-col-reverse text-center'>
