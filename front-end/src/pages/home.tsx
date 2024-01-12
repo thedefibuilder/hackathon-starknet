@@ -84,11 +84,11 @@ export default function HomePage() {
         <HeaderSection
           chainsName={chainsName}
           chainsDocumentationLink={chainsDocumentationLink}
-          className='rounded-3xl border-2 border-border bg-cover py-5 md:mt-16 md:bg-contain md:py-10'
+          className='rounded-3xl border-2 border-border bg-cover py-5 backdrop-blur-md md:mt-16 md:bg-contain md:py-10'
         />
       </Suspense>
 
-      <div className='flex flex-col gap-y-5 rounded-3xl border-2 border-border py-5 md:gap-y-10 md:py-10'>
+      <div className='flex flex-col gap-y-5 rounded-3xl border-2 border-border py-5 backdrop-blur-md md:gap-y-10 md:py-10'>
         <Suspense fallback={<Skeleton className='h-60 w-full' />}>
           <TemplatesSection
             chainsName={chainsName}
