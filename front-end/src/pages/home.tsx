@@ -1,11 +1,13 @@
 import React, { Suspense, useState } from 'react';
 
+import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
 
 import { Skeleton } from '@/components/ui/skeleton';
 
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
 const TemplatesSection = React.lazy(() => import('@/components/sections/templates'));
+const PromptSection = React.lazy(() => import('@/components/sections/prompt'));
 
 const chainsName = 'Starknet';
 const chainsDocumentationLink = 'https://docs.defibuilder.com/';
@@ -42,6 +44,7 @@ export default function HomePage() {
   const activeTemplates = templates.filter((template) => template.isActive);
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
+  const [prompt, setPrompt] = useState('');
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
@@ -61,6 +64,10 @@ export default function HomePage() {
             activeTemplateName={activeTemplateName}
             setActiveTemplateName={setActiveTemplateName}
           />
+        </Suspense>
+
+        <Suspense fallback={<Skeleton className='h-60 w-full' />}>
+          <PromptSection chainsName={chainsName} prompt={prompt} setPrompt={setPrompt} />
         </Suspense>
       </div>
     </div>
