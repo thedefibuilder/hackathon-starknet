@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Layout from './components/layout';
 import { Skeleton } from './components/ui/skeleton';
+import { Toaster } from './components/ui/toast/toaster';
 
 const HomePage = React.lazy(() => import('./pages/home'));
 const FourOuFourPage = React.lazy(() => import('./pages/four-ou-four'));
@@ -18,6 +19,8 @@ function App() {
             <Route path='*' element={<FourOuFourPage />} />
           </Routes>
         </Suspense>
+
+        <Toaster />
       </Layout>
     </BrowserRouter>
   );
