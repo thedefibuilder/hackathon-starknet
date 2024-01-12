@@ -51,7 +51,12 @@ module.exports = {
       {
         checksVoidReturn: { attributes: false }
       }
-    ]
+    ],
+    '@typescript-eslint/no-empty-interface': 'off',
+    // end
+
+    // unicord
+    'unicorn/no-null': 'off'
     // end
   }
 };
