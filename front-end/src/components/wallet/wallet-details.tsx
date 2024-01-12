@@ -5,7 +5,7 @@ import type { ButtonProperties } from '../ui/button';
 import { ClipboardCopy, ExternalLink, LogOut, RefreshCw } from 'lucide-react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
-import { isClipboardApiSupported, onCopyAddressClick } from '@/lib/clipboard';
+import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
 
 import { Button } from '../ui/button';
 import {
@@ -87,7 +87,7 @@ export function WalletDetails({
         {isClipboardApiSupported && (
           <DropdownMenuItem
             onClick={async () => {
-              await onCopyAddressClick(address);
+              await copyToClipboard(address);
 
               toast({
                 title: 'Copied to clipboard',
