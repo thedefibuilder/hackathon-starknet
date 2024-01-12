@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
+import downloadContent from '@/lib/download';
 
 import CopyButton from '../copy-button';
+import DownloadButton from '../download-button';
 import { Textarea } from '../ui/textarea';
 import SectionContainer from './container';
 
@@ -37,6 +39,17 @@ export default function CodeViewerSection({
             buttonClassName='absolute right-20 top-5'
           />
         )}
+
+        <DownloadButton
+          onClick={() =>
+            downloadContent(
+              smartContractCode,
+              `smart-contract.${smartContractFileExtension}`,
+              'text/plain'
+            )
+          }
+          buttonClassName='absolute right-5 top-5'
+        />
       </div>
     </SectionContainer>
   );
