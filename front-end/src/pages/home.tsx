@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
 const TemplatesSection = React.lazy(() => import('@/components/sections/templates'));
 const PromptSection = React.lazy(() => import('@/components/sections/prompt'));
+const CodeViewerSection = React.lazy(() => import('@/components/sections/code-viewer'));
 
 const chainsName = 'Starknet';
 const chainsDocumentationLink = 'https://docs.defibuilder.com/';
@@ -39,19 +40,43 @@ const templates: ITemplate[] = [
   }
 ];
 
+const predefinedPrompts: IPredefinedPrompt[] = [
+  {
+    id: '65827f546828e956077b7545',
+    title: 'ERC20 Token',
+    description: 'Token name must be X , with ticket Y and a total supply of 100000.'
+  }
+];
+
+const smartContractCode = `// SPDX-License-Identifier: MIT
+pragma solidity 0.8.19;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract XToken is ERC20, Ownable {
+
+    constructor() ERC20("X", "Y") {
+        _mint(msg.sender, 100000 * (10 ** uint256(decimals())));
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+}`;
+
+const smartContractFileExtension = '.cairo';
+
 export default function HomePage() {
   // eslint-disable-next-line unicorn/prefer-array-find
   const activeTemplates = templates.filter((template) => template.isActive);
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
   const [prompt, setPrompt] = useState('');
-  const predefinedPrompts: IPredefinedPrompt[] = [
-    {
-      id: '65827f546828e956077b7545',
-      title: 'ERC20 Token',
-      description: 'Token name must be X , with ticket Y and a total supply of 100000.'
-    }
-  ];
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
@@ -79,6 +104,14 @@ export default function HomePage() {
             predefinedPrompts={predefinedPrompts}
             prompt={prompt}
             setPrompt={setPrompt}
+          />
+        </Suspense>
+
+        <Suspense fallback={<Skeleton className='h-60 w-full' />}>
+          <CodeViewerSection
+            chainsName={chainsName}
+            smartContractCode={smartContractCode}
+            smartContractFileExtension={smartContractFileExtension}
           />
         </Suspense>
       </div>
