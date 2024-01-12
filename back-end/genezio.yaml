@@ -1,0 +1,18 @@
+name: starknet-builder
+region: us-east-1
+cloudProvider: genezio
+options:
+  nodeRuntime: nodejs18.x
+sdk:
+  language: ts
+  path: ../front-end/src/sdk
+frontend:
+  path: ../front-end/dist
+  subdomain: starknet-builder
+scripts:
+  preBackendDeploy: npm install --force
+  preFrontendDeploy: cd ../front-end && npm install && npm run build
+classes:
+  - path: ./src/LlmService.ts
+    type: jsonrpc
+    methods: []
