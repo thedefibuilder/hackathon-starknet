@@ -325,7 +325,7 @@ export default function HomePage() {
               <Button
                 disabled={isGenerationLoading}
                 onClick={() => initCreation()}
-                className='w-full md:w-auto'
+                className='w-full md:w-52'
               >
                 {isGenerationLoading ? (
                   <div className='flex items-center gap-x-2.5'>
