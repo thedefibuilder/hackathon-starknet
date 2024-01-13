@@ -18,4 +18,4 @@ export type Vulnerability = {
 
 export type VulnerabilitySeverity = 'High' | 'Medium' | 'Low';
 
-export type ContractType = 'ERC20' | 'ERC721' | 'ERC1155' | 'Vault' | 'Marketplace' | 'AMM';
+export type ContractType = 'Token' | 'NFT' | 'Edition' | 'Vault' | 'Marketplace' | 'Exchange';
