@@ -88,6 +88,8 @@ export default function HomePage() {
     compileContractState.isLoading ||
     auditContractState.isLoading;
 
+  const isGenerationCompleted = generateContractState.isSuccess && auditContractState.isSuccess;
+
   const creationSteps = [
     {
       number: 1,
@@ -117,7 +119,7 @@ export default function HomePage() {
       number: 4,
       step: 'Completed',
       isLoading: false,
-      isSuccess: generateContractState.isSuccess && auditContractState.isSuccess,
+      isSuccess: isGenerationCompleted,
       isError:
         generateContractState.isError && compileContractState.isError && auditContractState.isError,
       isStepConnected: false
@@ -284,6 +286,11 @@ export default function HomePage() {
     }
   }
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  async function deployContract() {
+    // TODO
+  }
+
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
       <Suspense fallback={<Skeleton className='h-40 w-full rounded-3xl md:mt-16' />}>
@@ -336,6 +343,8 @@ export default function HomePage() {
               chainsName={chainsName}
               smartContractCode={generateContractState.contractCode}
               smartContractFileExtension={smartContractFileExtension}
+              contractArtifacts={isGenerationCompleted ? compileContractState.artifact : null}
+              onDeployContractClick={deployContract}
             />
           )}
         </Suspense>
