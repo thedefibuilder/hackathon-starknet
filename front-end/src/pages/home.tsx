@@ -15,19 +15,19 @@ const chainsDocumentationLink = 'https://docs.defibuilder.com/';
 
 const templates: ITemplate[] = [
   {
-    name: 'Token',
+    name: 'ERC20',
     isActive: true
   },
   {
-    name: 'NFT',
+    name: 'ERC721',
     isActive: true
   },
   {
-    name: 'Staking',
+    name: 'ERC1155',
     isActive: false
   },
   {
-    name: 'Farm',
+    name: 'Vault',
     isActive: false
   },
   {
@@ -35,7 +35,7 @@ const templates: ITemplate[] = [
     isActive: false
   },
   {
-    name: 'Launchpad',
+    name: 'AMM',
     isActive: false
   }
 ];
@@ -118,3 +118,4 @@ export default function HomePage() {
     </div>
   );
 }
+

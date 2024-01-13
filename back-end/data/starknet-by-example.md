@@ -179,17 +179,19 @@ mod switch_collision_tests {
 
 ```
 
-
 # Calling other contracts
 
 There are two different ways to call other contracts in Cairo.
 
-The easiest way to call other contracts is by using the dispatcher of the contract you want to call.
-You can read more about Dispatchers in the [Cairo Book](https://book.cairo-lang.org/ch99-02-02-contract-dispatcher-library-dispatcher-and-system-calls.html#contract-dispatcher)
+The easiest way to call other contracts is by using the dispatcher of the contract you want to call. You can read more
+about Dispatchers in the
+[Cairo Book](https://book.cairo-lang.org/ch99-02-02-contract-dispatcher-library-dispatcher-and-system-calls.html#contract-dispatcher)
 
 The other way is to use the `starknet::call_contract_syscall` syscall yourself. However, this method is not recommended.
 
-In order to call other contracts using dispatchers, you will need to define the called contract's interface as a trait annotated with the `#[starknet::interface]` attribute, and then import the `IContractDispatcher` and `IContractDispatcherTrait` items in your contract.
+In order to call other contracts using dispatchers, you will need to define the called contract's interface as a trait
+annotated with the `#[starknet::interface]` attribute, and then import the `IContractDispatcher` and
+`IContractDispatcherTrait` items in your contract.
 
 ```rust
 #[starknet::interface]
@@ -251,7 +253,6 @@ mod Caller {
 
 ```
 
-
 # Mappings
 
 Maps are a key-value data structure used to store data within a smart contract. In Cairo they are implemented using the
@@ -307,7 +308,6 @@ mod MapContract {
 
 
 ```
-
 
 # Events
 
@@ -387,7 +387,6 @@ mod EventCounter {
 
 ```
 
-
 # Loop
 
 A loop specifies a block of code that will run repetitively until a halting condition is encountered. For example:
@@ -415,7 +414,6 @@ fn do_loop() {
 
 
 ```
-
 
 ```rust
 use starknet::ContractAddress;
@@ -1119,7 +1117,6 @@ mod Marketplace {
 
 ```
 
-
 # Writing to any storage slot
 
 On Starknet, a contract's storage is a map with 2^251 slots, where each slot is a felt which is initialized to 0. The
@@ -1184,7 +1181,6 @@ mod WriteToAnySlot {
 
 
 ```
-
 
 # Variables
 
@@ -1323,12 +1319,13 @@ mod GlobalExample {
 
 ```
 
-
 # Ownable
 
-The following `Ownable` component is a simple component that allows the contract to set an owner and provides a `_assert_is_owner` function that can be used to ensure that the caller is the owner.
+The following `Ownable` component is a simple component that allows the contract to set an owner and provides a
+`_assert_is_owner` function that can be used to ensure that the caller is the owner.
 
-It can also be used to renounce ownership of a contract, meaning that no one will be able to satisfy the `_assert_is_owner` function.
+It can also be used to renounce ownership of a contract, meaning that no one will be able to satisfy the
+`_assert_is_owner` function.
 
 ```rust
 use starknet::ContractAddress;
@@ -1610,7 +1607,6 @@ mod tests {
 
 
 ```
-
 
 # ERC20 Token
 
@@ -2069,11 +2065,10 @@ There's several other implementations, such as the
 [Open Zeppelin](https://docs.openzeppelin.com/contracts-cairo/0.7.0/erc20) or the
 [Cairo By Example](https://cairo-by-example.com/examples/erc20/) ones.
 
-
 # Arrays
 
-Arrays are collections of elements of the same type.
-The possible operations on arrays are defined with the `array::ArrayTrait` of the corelib:
+Arrays are collections of elements of the same type. The possible operations on arrays are defined with the
+`array::ArrayTrait` of the corelib:
 
 ```rust
 trait ArrayTrait<T> {
@@ -2113,7 +2108,6 @@ fn array() -> bool {
 
 
 ```
-
 
 # Hashing
 
@@ -2257,7 +2251,6 @@ mod tests {
 
 ```
 
-
 # Storing Custom Types
 
 While native types can be stored in a contract's storage without any additional work, custom types require a bit more
@@ -2299,7 +2292,6 @@ mod StoringCustomType {
 
 
 ```
-
 
 # Match
 
@@ -2362,7 +2354,6 @@ fn quiz(num: felt252) -> felt252 {
 
 ```
 
-
 # Storage
 
 Here's the most minimal contract you can write in Cairo:
@@ -2377,10 +2368,11 @@ mod Contract {
 
 ```
 
-Storage is a struct annoted with `#[storage]`. Every contract must have one and only one storage.
-It's a key-value store, where each key will be mapped to a storage address of the contract's storage space.
+Storage is a struct annoted with `#[storage]`. Every contract must have one and only one storage. It's a key-value
+store, where each key will be mapped to a storage address of the contract's storage space.
 
-You can define [storage variables](./variables.md#storage-variables) in your contract, and then use them to store and retrieve data.
+You can define [storage variables](./variables.md#storage-variables) in your contract, and then use them to store and
+retrieve data.
 
 ```rust
 #[starknet::contract]
@@ -2396,15 +2388,16 @@ mod Contract {
 
 ```
 
-> Actually these two contracts have the same underlying sierra program.
-> From the compiler's perspective, the storage variables don't exist until they are used.
+> Actually these two contracts have the same underlying sierra program. From the compiler's perspective, the storage
+> variables don't exist until they are used.
 
 You can also read about [storing custom types](./storing-custom-types.md)
 
-
 # Hash Solidity Compatible
 
-This contract demonstrates Keccak hashing in Cairo to match Solidity's keccak256. While both use Keccak, their endianness differs: Cairo is little-endian, Solidity big-endian. The contract achieves compatibility by hashing in big-endian using `keccak_u256s_be_inputs`, and reversing the bytes of the result with `u128_byte_reverse`.
+This contract demonstrates Keccak hashing in Cairo to match Solidity's keccak256. While both use Keccak, their
+endianness differs: Cairo is little-endian, Solidity big-endian. The contract achieves compatibility by hashing in
+big-endian using `keccak_u256s_be_inputs`, and reversing the bytes of the result with `u128_byte_reverse`.
 
 For example:
 
@@ -2447,7 +2440,6 @@ mod SolidityHashExample {
 
 
 ```
-
 
 # Contract interfaces and Traits generation
 
@@ -2590,7 +2582,6 @@ mod ImplicitInternalContract {
 
 ```
 
-
 # Custom types in entrypoints
 
 Using custom types in entrypoints requires our type to implement the `Serde` trait. This is because when calling an
@@ -2632,12 +2623,13 @@ mod SerdeCustomType {
 
 ```
 
-
 # Syscalls
 
 At the protocol level, the Starknet Operating System (OS) is the program that manages the whole Starknet network.
 
-Some of the OS functionalities are exposed to smart contracts through the use of syscalls (system calls). Syscalls can be used to get information about the state of the Starknet network, to interact with/deploy contracts, emit events, send messages, and perform other low-level operations.
+Some of the OS functionalities are exposed to smart contracts through the use of syscalls (system calls). Syscalls can
+be used to get information about the state of the Starknet network, to interact with/deploy contracts, emit events, send
+messages, and perform other low-level operations.
 
 Syscalls return a `SyscallResult` which is either `Sucess` of `Failure`, allowing the contract to handle errors.
 
@@ -2672,8 +2664,7 @@ fn get_execution_info_syscall() -> SyscallResult<Box<starknet::info::ExecutionIn
 
 ```
 
-Get information about the current execution context.
-The returned `ExecutionInfo` is defined as :
+Get information about the current execution context. The returned `ExecutionInfo` is defined as :
 
 ```rust
 #[derive(Copy, Drop, Debug)]
@@ -2746,10 +2737,11 @@ fn call_contract_syscall(
 ) -> SyscallResult<Span<felt252>>
 ```
 
-Call a contract at `address` with the given `entry_point_selector` and `calldata`.
-Failure can't be caught for this syscall, if the call fails, the whole transaction will revert.
+Call a contract at `address` with the given `entry_point_selector` and `calldata`. Failure can't be caught for this
+syscall, if the call fails, the whole transaction will revert.
 
-This is not the recommended way to call a contract. Instead, use the dispatcher generated from the contract interface as shown in the [Calling other contracts](../interacting/calling_other_contracts.md).
+This is not the recommended way to call a contract. Instead, use the dispatcher generated from the contract interface as
+shown in the [Calling other contracts](../interacting/calling_other_contracts.md).
 
 #### deploy
 
@@ -2763,8 +2755,8 @@ deploy_from_zero: bool,
 
 ```
 
-Deploy a new contract of the predeclared class `class_hash` with `calldata`.
-The success result is a tuple containing the deployed contract address and the return value of the constructor.
+Deploy a new contract of the predeclared class `class_hash` with `calldata`. The success result is a tuple containing
+the deployed contract address and the return value of the constructor.
 
 `contract_address_salt` and `deploy_from_zero` are used to compute the contract address.
 
@@ -2934,8 +2926,8 @@ class_hash: ClassHash, function_selector: felt252, calldata: Span<felt252>
 
 ```
 
-Call the function `function_selector` of the class `class_hash` with `calldata`.
-This is analogous to a delegate call in Ethereum, but only a single class is called.
+Call the function `function_selector` of the class `class_hash` with `calldata`. This is analogous to a delegate call in
+Ethereum, but only a single class is called.
 
 #### send_message_to_L1
 
@@ -2958,7 +2950,8 @@ class_hash: ClassHash
 
 Replace the class of the calling contract with the class `class_hash`.
 
-This is used for contract upgrades. Here's an example from the [Upgradeable Contract](../../ch01/upgradeable_contract.md):
+This is used for contract upgrades. Here's an example from the
+[Upgradeable Contract](../../ch01/upgradeable_contract.md):
 
 ```rust
 
@@ -3012,8 +3005,9 @@ mod UpgradeableContract_V0 {
 
 ```
 
-The new class code will only be used for future calls to the contract.
-The current transaction containing the `replace_class` syscall will continue to use the old class code. (You can explicitly use the new class code by calling `call_contract` after the `replace_class` syscall in the same transaction)
+The new class code will only be used for future calls to the contract. The current transaction containing the
+`replace_class` syscall will continue to use the old class code. (You can explicitly use the new class code by calling
+`call_contract` after the `replace_class` syscall in the same transaction)
 
 #### storage_read
 
@@ -3026,8 +3020,8 @@ address_domain: u32, address: StorageAddress,
 
 This low-level syscall is used to get the value in the storage of a specific key at `address` in the `address_domain`.
 
-`address_domain` is used to distinguish between data availability modes.
-Currently, only mode `ONCHAIN` (`0`) is supported.
+`address_domain` is used to distinguish between data availability modes. Currently, only mode `ONCHAIN` (`0`) is
+supported.
 
 #### storage_write
 
@@ -3037,14 +3031,17 @@ fn storage_write_syscall(
 ) -> SyscallResult<()>
 ```
 
-Similar to `storage_read`, this low-level syscall is used to write the value `value` in the storage of a specific key at `address` in the `address_domain`.
+Similar to `storage_read`, this low-level syscall is used to write the value `value` in the storage of a specific key at
+`address` in the `address_domain`.
 
 ## Documentation
 
-Syscalls are defined in [`starknet::syscall`](https://github.com/starkware-libs/cairo/blob/ec14a5e2c484190ff40811c973a72a53739cedb7/corelib/src/starknet/syscalls.cairo)
+Syscalls are defined in
+[`starknet::syscall`](https://github.com/starkware-libs/cairo/blob/ec14a5e2c484190ff40811c973a72a53739cedb7/corelib/src/starknet/syscalls.cairo)
 
-You can also read the [official documentation page](https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/) for more details.
-
+You can also read the
+[official documentation page](https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/)
+for more details.
 
 # Constructor
 
@@ -3077,19 +3074,16 @@ mod ExampleConstructor {
 
 ```
 
-
 # List
 
-By default, there is no list type supported in Cairo, but you can use Alexandria. You can refer to the [Alexandria documentation](https://github.com/keep-starknet-strange/alexandria/tree/main/src/storage) for more details.
+By default, there is no list type supported in Cairo, but you can use Alexandria. You can refer to the
+[Alexandria documentation](https://github.com/keep-starknet-strange/alexandria/tree/main/src/storage) for more details.
 
 ## What is `List`?
 
 An ordered sequence of values that can be used in Starknet storage:
 
-cairo #[storage]
-stuct Storage {
-amounts: List<u128>
-}
+cairo #[storage] stuct Storage { amounts: List<u128> }
 
 ````
 
@@ -3118,14 +3112,18 @@ Note that unlike `get`, using this bracket notation panics when accessing an out
 
 ### Support for custom types
 
-`List` supports most of the corelib types out of the box. If you want to store a your own custom type in a `List`, it has to implement the `Store` trait. You can have the compiler derive it for you using the `#[derive(starknet::Store)]` attribute.
+`List` supports most of the corelib types out of the box. If you want to store a your own custom type in a `List`, it
+has to implement the `Store` trait. You can have the compiler derive it for you using the `#[derive(starknet::Store)]`
+attribute.
 
 ### Caveats
 
 There are two idiosyncacies you should be aware of when using `List`
 
-1. The `append` operation costs 2 storage writes - one for the value itself and another one for updating the List's length
-2. Due to a compiler limitation, it is not possible to use mutating operations with a single inline statement. For example, `self.amounts.read().append(42);` will not work. You have to do it in 2 steps:
+1. The `append` operation costs 2 storage writes - one for the value itself and another one for updating the List's
+   length
+2. Due to a compiler limitation, it is not possible to use mutating operations with a single inline statement. For
+   example, `self.amounts.read().append(42);` will not work. You have to do it in 2 steps:
 
 ```rust
 let mut amounts = self.amounts.read();
@@ -3221,7 +3219,6 @@ mod ListExample {
 
 
 ```
-
 
 # Errors
 
@@ -3365,7 +3362,6 @@ mod VaultErrorsExample {
 
 ```
 
-
 # Factory Pattern
 
 The factory pattern is a well known pattern in object oriented programming. It provides an abstraction on how to
@@ -3472,7 +3468,6 @@ function which allows to reuse the same factory contract when the `SimpleCounter
 
 This minimal example lacks several useful features such as access control, tracking of deployed contracts, events, ...
 
-
 # Tuples
 
 Tuples is a data type to group a fixed number of items of potentially different types into a single compound structure.
@@ -3498,14 +3493,21 @@ fn tuple() {
 
 ```
 
-
 # Storing Arrays
 
-On Starknet, complex values (e.g., tuples or structs), are stored in a continuous segment starting from the address of the storage variable. There is a 256 field elements limitation to the maximal size of a complex storage value, meaning that to store arrays of more than 255 elements in storage, we would need to split it into segments of size `n <= 255` and store these segments in multiple storage addresses. There is currently no native support for storing arrays in Cairo, so you will need to write your own implementation of the `Store` trait for the type of array you wish to store.
+On Starknet, complex values (e.g., tuples or structs), are stored in a continuous segment starting from the address of
+the storage variable. There is a 256 field elements limitation to the maximal size of a complex storage value, meaning
+that to store arrays of more than 255 elements in storage, we would need to split it into segments of size `n <= 255`
+and store these segments in multiple storage addresses. There is currently no native support for storing arrays in
+Cairo, so you will need to write your own implementation of the `Store` trait for the type of array you wish to store.
 
-> Note: While storing arrays in storage is possible, it is not always recommended, as the read and write operations can get very costly. For example, reading an array of size `n` requires `n` storage reads, and writing to an array of size `n` requires `n` storage writes. If you only need to access a single element of the array at a time, it is recommended to use a `LegacyMap` and store the length in another variable instead.
+> Note: While storing arrays in storage is possible, it is not always recommended, as the read and write operations can
+> get very costly. For example, reading an array of size `n` requires `n` storage reads, and writing to an array of size
+> `n` requires `n` storage writes. If you only need to access a single element of the array at a time, it is recommended
+> to use a `LegacyMap` and store the length in another variable instead.
 
-The following example demonstrates how to write a simple implementation of the `StorageAccess` trait for the `Array<felt252>` type, allowing us to store arrays of up to 255 `felt252` elements.
+The following example demonstrates how to write a simple implementation of the `StorageAccess` trait for the
+`Array<felt252>` type, allowing us to store arrays of up to 255 `felt252` elements.
 
 ```rust
 use starknet::{
@@ -3717,7 +3719,6 @@ mod StoreArrayContract {
 
 ```
 
-
 # Structs as mapping keys
 
 In order to use structs as mapping keys, you can use `#[derive(Hash)]` on the struct definition. This will automatically
@@ -3766,7 +3767,6 @@ mod PetRegistry {
 
 
 ```
-
 
 # Visibility and Mutability
 
@@ -3853,7 +3853,6 @@ mod ExampleContract {
 
 ```
 
-
 # Mapping
 
 The `LegacyMap` type can be used to represent a collection of key-value.
@@ -3914,7 +3913,6 @@ mod MappingContract {
 
 ```
 
-
 ```rust
 use starknet::ContractAddress;
 
@@ -3945,7 +3943,6 @@ impl ERC721ReceiverImpl of ERC721ReceiverTrait {
     }
 }
 ```
-
 
 # Simple Counter
 
@@ -4004,7 +4001,6 @@ mod SimpleCounter {
 
 ```
 
-
 # Felt252
 
 Felt252 is a fundamental data type in Cairo from which all other data types are derived. Felt252 can also be used to
@@ -4025,7 +4021,6 @@ fn felt() {
 
 
 ```
-
 
 # Simple Defi Vault
 
@@ -4143,12 +4138,11 @@ mod SimpleVault {
 
 ```
 
-
 # Components How-To
 
-Components are like modular addons that can be snapped into contracts to add reusable logic, storage, and events.
-They are used to separate the core logic from common functionalities, simplifying the contract's code and making it easier to read and maintain.
-It also reduces the risk of bugs and vulnerabilities by using well-tested components.
+Components are like modular addons that can be snapped into contracts to add reusable logic, storage, and events. They
+are used to separate the core logic from common functionalities, simplifying the contract's code and making it easier to
+read and maintain. It also reduces the risk of bugs and vulnerabilities by using well-tested components.
 
 Key characteristics:
 
@@ -4158,10 +4152,11 @@ Key characteristics:
 
 ## How to create a component
 
-The following example shows a simple `Switchable` component that can be used to add a switch that can be either on or off.
-It contains a storage variable `switchable_value`, a function `switch` and an event `Switch`.
+The following example shows a simple `Switchable` component that can be used to add a switch that can be either on or
+off. It contains a storage variable `switchable_value`, a function `switch` and an event `Switch`.
 
-> It is a good practice to prefix the component storage variables with the component name to [avoid collisions](./collisions.md).
+> It is a good practice to prefix the component storage variables with the component name to
+> [avoid collisions](./collisions.md).
 
 ```rust
 
@@ -4226,18 +4221,19 @@ A component in itself is really similar to a contract, it _can_ also have:
 - Events
 - Internal functions
 
-It don't have a constructor, but you can create a `_init` internal function and call it from the contract's constructor. In the previous example, the `_off` function is used this way.
+It don't have a constructor, but you can create a `_init` internal function and call it from the contract's constructor.
+In the previous example, the `_off` function is used this way.
 
-> It's currently not possible to use the same component multiple times in the same contract.
-> This is a known limitation that may be lifted in the future.
+> It's currently not possible to use the same component multiple times in the same contract. This is a known limitation
+> that may be lifted in the future.
 >
-> For now, you can view components as an implementation of a specific interface/feature (`Ownable`, `Upgradeable`, ... `~able`).
-> This is why we called it `Switchable` and not `Switch`; The contract _is switchable_, not _has a switch_.
+> For now, you can view components as an implementation of a specific interface/feature (`Ownable`, `Upgradeable`, ...
+> `~able`). This is why we called it `Switchable` and not `Switch`; The contract _is switchable_, not _has a switch_.
 
 ## How to use a component
 
-Now that we have a component, we can use it in a contract.
-The following contract incorporates the `Switchable` component:
+Now that we have a component, we can use it in a contract. The following contract incorporates the `Switchable`
+component:
 
 ```rust
 
@@ -4330,8 +4326,8 @@ mod tests {
 
 ## Deep dive into components
 
-You can find more in-depth information about components in the [Cairo book - Components](https://book.cairo-lang.org/ch99-01-05-00-components.html).
-
+You can find more in-depth information about components in the
+[Cairo book - Components](https://book.cairo-lang.org/ch99-01-05-00-components.html).
 
 ```rust
 use starknet::ContractAddress;
@@ -4686,7 +4682,6 @@ array::ArrayTrait; use array::ArrayTCloneImpl; use option::OptionTrait;
 }
 ```
 
-
 # Struct
 
 A struct is a data type similar to tuple. Like tuples they can be used to hold data of different types. For example:
@@ -4702,7 +4697,6 @@ struct Data {
 
 
 ```
-
 
 # Type casting
 
@@ -4738,9 +4732,273 @@ fn type_casting() {
     let new_usize: usize = my_felt252.try_into().unwrap();
 
 }
-
-
-
 ```
 
+```rust
+use starknet::ContractAddress;
 
+#[starknet::interface]
+trait IConstantProductAmm<TContractState> {
+    fn swap(ref self: TContractState, token_in: ContractAddress, amount_in: u256) -> u256;
+    fn add_liquidity(ref self: TContractState, amount0: u256, amount1: u256) -> u256;
+    fn remove_liquidity(ref self: TContractState, shares: u256) -> (u256, u256);
+}
+
+#[starknet::contract]
+mod ConstantProductAmm {
+    use core::traits::Into;
+    use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::{
+        ContractAddress, get_caller_address, get_contract_address, contract_address_const
+    };
+    use integer::u256_sqrt;
+
+    #[storage]
+    struct Storage {
+        token0: IERC20Dispatcher,
+        token1: IERC20Dispatcher,
+        reserve0: u256,
+        reserve1: u256,
+        total_supply: u256,
+        balance_of: LegacyMap::<ContractAddress, u256>,
+        // Fee 0 - 1000 (0% - 100%, 1 decimal places)
+        // E.g. 3 = 0.3%
+        fee: u16,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState, token0: ContractAddress, token1: ContractAddress, fee: u16
+    ) {
+        // assert(fee <= 1000, 'fee > 1000');
+        self.token0.write(IERC20Dispatcher { contract_address: token0 });
+        self.token1.write(IERC20Dispatcher { contract_address: token1 });
+        self.fee.write(fee);
+    }
+
+    #[generate_trait]
+    impl PrivateFunctions of PrivateFunctionsTrait {
+        fn _mint(ref self: ContractState, to: ContractAddress, amount: u256) {
+            self.balance_of.write(to, self.balance_of.read(to) + amount);
+            self.total_supply.write(self.total_supply.read() + amount);
+        }
+
+        fn _burn(ref self: ContractState, from: ContractAddress, amount: u256) {
+            self.balance_of.write(from, self.balance_of.read(from) - amount);
+            self.total_supply.write(self.total_supply.read() - amount);
+        }
+
+        fn _update(ref self: ContractState, reserve0: u256, reserve1: u256) {
+            self.reserve0.write(reserve0);
+            self.reserve1.write(reserve1);
+        }
+
+        #[inline(always)]
+        fn select_token(self: @ContractState, token: ContractAddress) -> bool {
+            assert(
+                token == self.token0.read().contract_address
+                    || token == self.token1.read().contract_address,
+                'invalid token'
+            );
+            token == self.token0.read().contract_address
+        }
+
+        #[inline(always)]
+        fn min(x: u256, y: u256) -> u256 {
+            if (x <= y) {
+                x
+            } else {
+                y
+            }
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ConstantProductAmm of super::IConstantProductAmm<ContractState> {
+        fn swap(ref self: ContractState, token_in: ContractAddress, amount_in: u256) -> u256 {
+            assert(amount_in > 0, 'amount in = 0');
+            let is_token0: bool = self.select_token(token_in);
+
+            let (token0, token1): (IERC20Dispatcher, IERC20Dispatcher) = (
+                self.token0.read(), self.token1.read()
+            );
+            let (reserve0, reserve1): (u256, u256) = (self.reserve0.read(), self.reserve1.read());
+            let (
+                token_in, token_out, reserve_in, reserve_out
+            ): (IERC20Dispatcher, IERC20Dispatcher, u256, u256) =
+                if (is_token0) {
+                (token0, token1, reserve0, reserve1)
+            } else {
+                (token1, token0, reserve1, reserve0)
+            };
+
+            let caller = get_caller_address();
+            let this = get_contract_address();
+            token_in.transfer_from(caller, this, amount_in);
+
+            // How much dy for dx?
+            // xy = k
+            // (x + dx)(y - dy) = k
+            // y - dy = k / (x + dx)
+            // y - k / (x + dx) = dy
+            // y - xy / (x + dx) = dy
+            // (yx + ydx - xy) / (x + dx) = dy
+            // ydx / (x + dx) = dy
+
+            let amount_in_with_fee = (amount_in * (1000 - self.fee.read().into()) / 1000);
+            let amount_out = (reserve_out * amount_in_with_fee) / (reserve_in + amount_in_with_fee);
+
+            token_out.transfer(caller, amount_out);
+
+            self._update(self.token0.read().balance_of(this), self.token1.read().balance_of(this));
+            amount_out
+        }
+
+        fn add_liquidity(ref self: ContractState, amount0: u256, amount1: u256) -> u256 {
+            let caller = get_caller_address();
+            let this = get_contract_address();
+            let (token0, token1): (IERC20Dispatcher, IERC20Dispatcher) = (
+                self.token0.read(), self.token1.read()
+            );
+
+            token0.transfer_from(caller, this, amount0);
+            token1.transfer_from(caller, this, amount1);
+
+            // How much dx, dy to add?
+            //
+            // xy = k
+            // (x + dx)(y + dy) = k'
+            //
+            // No price change, before and after adding liquidity
+            // x / y = (x + dx) / (y + dy)
+            //
+            // x(y + dy) = y(x + dx)
+            // x * dy = y * dx
+            //
+            // x / y = dx / dy
+            // dy = y / x * dx
+
+            let (reserve0, reserve1): (u256, u256) = (self.reserve0.read(), self.reserve1.read());
+            if (reserve0 > 0 || reserve1 > 0) {
+                assert(reserve0 * amount1 == reserve1 * amount0, 'x / y != dx / dy');
+            }
+
+            // How much shares to mint?
+            //
+            // f(x, y) = value of liquidity
+            // We will define f(x, y) = sqrt(xy)
+            //
+            // L0 = f(x, y)
+            // L1 = f(x + dx, y + dy)
+            // T = total shares
+            // s = shares to mint
+            //
+            // Total shares should increase proportional to increase in liquidity
+            // L1 / L0 = (T + s) / T
+            //
+            // L1 * T = L0 * (T + s)
+            //
+            // (L1 - L0) * T / L0 = s
+
+            // Claim
+            // (L1 - L0) / L0 = dx / x = dy / y
+            //
+            // Proof
+            // --- Equation 1 ---
+            // (L1 - L0) / L0 = (sqrt((x + dx)(y + dy)) - sqrt(xy)) / sqrt(xy)
+            //
+            // dx / dy = x / y so replace dy = dx * y / x
+            //
+            // --- Equation 2 ---
+            // Equation 1 = (sqrt(xy + 2ydx + dx^2 * y / x) - sqrt(xy)) / sqrt(xy)
+            //
+            // Multiply by sqrt(x) / sqrt(x)
+            // Equation 2 = (sqrt(x^2y + 2xydx + dx^2 * y) - sqrt(x^2y)) / sqrt(x^2y)
+            //            = (sqrt(y)(sqrt(x^2 + 2xdx + dx^2) - sqrt(x^2)) / (sqrt(y)sqrt(x^2))
+            // sqrt(y) on top and bottom cancels out
+            //
+            // --- Equation 3 ---
+            // Equation 2 = (sqrt(x^2 + 2xdx + dx^2) - sqrt(x^2)) / (sqrt(x^2)
+            // = (sqrt((x + dx)^2) - sqrt(x^2)) / sqrt(x^2)
+            // = ((x + dx) - x) / x
+            // = dx / x
+            // Since dx / dy = x / y,
+            // dx / x = dy / y
+            //
+            // Finally
+            // (L1 - L0) / L0 = dx / x = dy / y
+
+            let total_supply = self.total_supply.read();
+            let shares = if (total_supply == 0) {
+                u256_sqrt(amount0 * amount1).into()
+            } else {
+                PrivateFunctions::min(
+                    amount0 * total_supply / reserve0, amount1 * total_supply / reserve1
+                )
+            };
+            assert(shares > 0, 'shares = 0');
+            self._mint(caller, shares);
+
+            self._update(self.token0.read().balance_of(this), self.token1.read().balance_of(this));
+            shares
+        }
+
+        fn remove_liquidity(ref self: ContractState, shares: u256) -> (u256, u256) {
+            let caller = get_caller_address();
+            let this = get_contract_address();
+            let (token0, token1): (IERC20Dispatcher, IERC20Dispatcher) = (
+                self.token0.read(), self.token1.read()
+            );
+
+            // Claim
+            // dx, dy = amount of liquidity to remove
+            // dx = s / T * x
+            // dy = s / T * y
+            //
+            // Proof
+            // Let's find dx, dy such that
+            // v / L = s / T
+            //
+            // where
+            // v = f(dx, dy) = sqrt(dxdy)
+            // L = total liquidity = sqrt(xy)
+            // s = shares
+            // T = total supply
+            //
+            // --- Equation 1 ---
+            // v = s / T * L
+            // sqrt(dxdy) = s / T * sqrt(xy)
+            //
+            // Amount of liquidity to remove must not change price so
+            // dx / dy = x / y
+            //
+            // replace dy = dx * y / x
+            // sqrt(dxdy) = sqrt(dx * dx * y / x) = dx * sqrt(y / x)
+            //
+            // Divide both sides of Equation 1 with sqrt(y / x)
+            // dx = s / T * sqrt(xy) / sqrt(y / x)
+            // = s / T * sqrt(x^2) = s / T * x
+            //
+            // Likewise
+            // dy = s / T * y
+
+            // bal0 >= reserve0
+            // bal1 >= reserve1
+            let (bal0, bal1): (u256, u256) = (token0.balance_of(this), token1.balance_of(this));
+
+            let total_supply = self.total_supply.read();
+            let (amount0, amount1): (u256, u256) = (
+                (shares * bal0) / total_supply, (shares * bal1) / total_supply
+            );
+            assert(amount0 > 0 && amount1 > 0, 'amount0 or amount1 = 0');
+
+            self._burn(caller, shares);
+            self._update(bal0 - amount0, bal1 - amount1);
+
+            token0.transfer(caller, amount0);
+            token1.transfer(caller, amount1);
+            (amount0, amount1)
+        }
+    }
+}
+```

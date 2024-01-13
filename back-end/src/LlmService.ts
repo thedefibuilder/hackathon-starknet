@@ -4,18 +4,25 @@ import { readFileSync } from 'fs';
 import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
-import { BuildResponse, Vulnerability } from './types';
+import { BuildResponse, ContractType, Vulnerability } from './types';
 
 dotenv.config();
 
 export class LlmService {
-  async callCairoGeneratorLLM(description: string, contractType: string): Promise<string> {
+  private trimCode(code: string) {
+    const codeMatch = new RegExp(`\`\`\`rust([\\s\\S]*?)\`\`\``, 'g').exec(code);
+    return codeMatch ? codeMatch[1].trim() : code;
+  }
+
+  async callCairoGeneratorLLM(description: string, contractType: ContractType): Promise<string> {
     const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
-    return await cairoGeneratorAgent().invoke({
+    const responseCode = await cairoGeneratorAgent().invoke({
       docs,
       description,
       contractType,
     });
+
+    return this.trimCode(responseCode);
   }
 
   async buildCairoCode(smartContractCode: string): Promise<BuildResponse> {
