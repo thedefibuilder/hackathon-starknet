@@ -1,6 +1,6 @@
-import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from '@langchain/core/prompts';
+import { ChatOpenAI } from '@langchain/openai';
 
 export function buildResolverAgent() {
   const systemMsg =

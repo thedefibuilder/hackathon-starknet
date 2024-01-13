@@ -6,7 +6,7 @@ export type GeneratorPromptArgs = {
 export type BuildResponse = {
   success: boolean;
   message: string;
-  artifact: unknown; // Hardhat Artifact
+  artifact: unknown;
   code: string;
 };
 
@@ -17,3 +17,5 @@ export type Vulnerability = {
 };
 
 export type VulnerabilitySeverity = 'High' | 'Medium' | 'Low';
+
+export type ContractType = 'Token' | 'NFT' | 'Edition' | 'Vault' | 'Marketplace' | 'Exchange';

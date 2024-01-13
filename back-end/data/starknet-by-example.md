@@ -67,8 +67,6 @@ mod SwitchCollisionContract {
         }
     }
 }
-
-
 ```
 
 Here's the storage of the contract (you can expand the code snippet to see the full contract):
@@ -123,8 +121,6 @@ mod SwitchCollisionContract {
         }
     }
 }
-
-
 ```
 
 Both the contract and the component have a `switchable_value` storage variable, so they collide:
@@ -174,22 +170,21 @@ mod switch_collision_tests {
     }
 
 }
-
-
-
 ```
-
 
 # Calling other contracts
 
 There are two different ways to call other contracts in Cairo.
 
-The easiest way to call other contracts is by using the dispatcher of the contract you want to call.
-You can read more about Dispatchers in the [Cairo Book](https://book.cairo-lang.org/ch99-02-02-contract-dispatcher-library-dispatcher-and-system-calls.html#contract-dispatcher)
+The easiest way to call other contracts is by using the dispatcher of the contract you want to call. You can read more
+about Dispatchers in the
+[Cairo Book](https://book.cairo-lang.org/ch99-02-02-contract-dispatcher-library-dispatcher-and-system-calls.html#contract-dispatcher)
 
 The other way is to use the `starknet::call_contract_syscall` syscall yourself. However, this method is not recommended.
 
-In order to call other contracts using dispatchers, you will need to define the called contract's interface as a trait annotated with the `#[starknet::interface]` attribute, and then import the `IContractDispatcher` and `IContractDispatcherTrait` items in your contract.
+In order to call other contracts using dispatchers, you will need to define the called contract's interface as a trait
+annotated with the `#[starknet::interface]` attribute, and then import the `IContractDispatcher` and
+`IContractDispatcherTrait` items in your contract.
 
 ```rust
 #[starknet::interface]
@@ -212,8 +207,6 @@ mod Callee {
         }
     }
 }
-
-
 ```
 
 ```rust
@@ -247,10 +240,7 @@ mod Caller {
         }
     }
 }
-
-
 ```
-
 
 # Mappings
 
@@ -303,11 +293,7 @@ mod MapContract {
         }
     }
 }
-
-
-
 ```
-
 
 # Events
 
@@ -379,14 +365,7 @@ mod EventCounter {
         }
     }
 }
-
-
-
-
-
-
 ```
-
 
 # Loop
 
@@ -411,714 +390,7 @@ fn do_loop() {
     };
 
 }
-
-
-
 ```
-
-
-```rust
-use starknet::ContractAddress;
-
-#[starknet::interface]
-trait IMarketplace<TContractState> {
-    fn create_listing(
-        ref self: TContractState,
-        assetContract: ContractAddress,
-        tokenId: u256,
-        startTime: u256,
-        secondsUntilEndTime: u256,
-        quantityToList: u256,
-        currencyToAccept: ContractAddress,
-        buyoutPricePerToken: u256,
-        tokenTypeOfListing: u256,
-    );
-    fn cancel_direct_listing(ref self: TContractState, _listingId: u256);
-    fn buy(
-        ref self: TContractState,
-        _listingId: u256,
-        _buyFor: ContractAddress,
-        _quantityToBuy: u256,
-        _currency: ContractAddress,
-        _totalPrice: u256,
-    );
-    fn accept_offer(
-        ref self: TContractState,
-        _listingId: u256,
-        _offeror: ContractAddress,
-        _currency: ContractAddress,
-        _pricePerToken: u256
-    );
-    fn offer(
-        ref self: TContractState,
-        _listingId: u256,
-        _quantityWanted: u256,
-        _currency: ContractAddress,
-        _pricePerToken: u256,
-        _expirationTimestamp: u256
-    );
-    fn update_listing(
-        ref self: TContractState,
-        _listingId: u256,
-        _quantityToList: u256,
-        _reservePricePerToken: u256,
-        _buyoutPricePerToken: u256,
-        _currencyToAccept: ContractAddress,
-        _startTime: u256,
-        _secondsUntilEndTime: u256,
-    );
-    fn get_total_listings(self: @TContractState) -> u256;
-}
-
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn balance_of(self: @TContractState, account: ContractAddress) -> u256;
-    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256);
-    fn transfer_from(
-        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    );
-}
-
-#[starknet::interface]
-trait IERC721<TContractState> {
-    fn owner_of(self: @TContractState, token_id: u256) -> ContractAddress;
-    fn get_approved(self: @TContractState, token_id: u256) -> ContractAddress;
-    fn is_approved_for_all(
-        self: @TContractState, owner: ContractAddress, operator: ContractAddress
-    ) -> bool;
-    fn transfer_from(
-        ref self: TContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-    );
-}
-
-#[starknet::interface]
-trait IERC1155<TContractState> {
-    fn balance_of(self: @TContractState, account: ContractAddress, id: u256) -> u256;
-    fn is_approved_for_all(
-        self: @TContractState, account: ContractAddress, operator: ContractAddress
-    ) -> bool;
-    fn safe_transfer_from(
-        ref self: TContractState,
-        from: ContractAddress,
-        to: ContractAddress,
-        id: u256,
-        amount: u256,
-        data: Span<felt252>
-    );
-}
-
-#[starknet::contract]
-mod Marketplace {
-    use reddio_cairo::marketplace::IMarketplace;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use starknet::get_contract_address;
-    use starknet::info::get_block_timestamp;
-    use starknet::contract_address_const;
-    use starknet::syscalls::replace_class_syscall;
-    use starknet::class_hash::ClassHash;
-    use core::traits::Into;
-
-    use super::IERC20Dispatcher;
-    use super::IERC20DispatcherTrait;
-    use super::IERC721Dispatcher;
-    use super::IERC721DispatcherTrait;
-    use super::IERC1155Dispatcher;
-    use super::IERC1155DispatcherTrait;
-
-    const ERC721: u256 = 0;
-    const ERC1155: u256 = 1;
-
-
-    #[storage]
-    struct Storage {
-        operator: ContractAddress,
-        total_listings: u256,
-        listings: LegacyMap::<u256, Listing>,
-        offers: LegacyMap::<(u256, ContractAddress), Offer>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        ListingAdded: ListingAdded,
-        ListingUpdated: ListingUpdated,
-        ListingRemoved: ListingRemoved,
-        NewOffer: NewOffer,
-        NewSale: NewSale,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct NewSale {
-        #[key]
-        listingId: u256,
-        #[key]
-        assetContract: ContractAddress,
-        #[key]
-        lister: ContractAddress,
-        buyer: ContractAddress,
-        quantityBought: u256,
-        totalPricePaid: u256,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct ListingAdded {
-        #[key]
-        listingId: u256,
-        #[key]
-        assetContract: ContractAddress,
-        #[key]
-        lister: ContractAddress,
-        listing: Listing,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct ListingUpdated {
-        #[key]
-        listingId: u256,
-        #[key]
-        listingCreator: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct ListingRemoved {
-        #[key]
-        listingId: u256,
-        #[key]
-        listingCreator: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct NewOffer {
-        // todo listingType
-        #[key]
-        listingId: u256,
-        #[key]
-        offeror: ContractAddress,
-        quantityWanted: u256,
-        totalOfferAmount: u256,
-        currency: ContractAddress,
-    }
-
-    #[derive(Copy, Drop, Serde, starknet::Store)]
-    struct Offer {
-        listingId: u256,
-        offeror: ContractAddress,
-        quantityWanted: u256,
-        currency: ContractAddress,
-        pricePerToken: u256,
-        expirationTimestamp: u256,
-    }
-
-    #[derive(Copy, Drop, Serde, starknet::Store)]
-    struct Listing {
-        listingId: u256,
-        tokenOwner: ContractAddress,
-        assetContract: ContractAddress,
-        tokenId: u256,
-        startTime: u256,
-        endTime: u256,
-        quantity: u256,
-        currency: ContractAddress,
-        buyoutPricePerToken: u256,
-        // 0 -> erc721, 1 -> erc1155
-        tokenType: u256,
-    // todo reservePricePerToken tokenType listingType
-    }
-
-    #[constructor]
-    fn constructor(ref self: ContractState,) {
-        self.operator.write(get_caller_address());
-    }
-
-    #[external(v0)]
-    fn upgrade(self: @ContractState, new_class_hash: ClassHash) {
-        assert(!new_class_hash.is_zero(), 'Class hash cannot be zero');
-        assert(get_caller_address() == self.operator.read(), 'Operator required');
-        replace_class_syscall(new_class_hash);
-    }
-
-    #[abi(embed_v0)]
-    impl IMarketplaceImpl of super::IMarketplace<ContractState> {
-        fn create_listing(
-            ref self: ContractState,
-            assetContract: ContractAddress,
-            tokenId: u256,
-            startTime: u256,
-            secondsUntilEndTime: u256,
-            quantityToList: u256,
-            currencyToAccept: ContractAddress,
-            buyoutPricePerToken: u256,
-            tokenTypeOfListing: u256,
-        ) {
-            let listingId = self.total_listings.read();
-            self.total_listings.write(listingId + 1);
-
-            let tokenOwner = get_caller_address();
-            let tokenAmountToList = self.get_safe_quantity(tokenTypeOfListing, quantityToList);
-            assert(tokenAmountToList > 0, 'QUANTITY');
-            // hasRole
-            let mut _startTime = startTime;
-            let currentTime = get_block_timestamp().into();
-            if (_startTime < currentTime) {
-                assert(currentTime - _startTime < 3600, 'ST');
-                _startTime = currentTime;
-            }
-
-            self
-                .validate_ownership_and_approval(
-                    tokenOwner, assetContract, tokenId, tokenAmountToList, tokenTypeOfListing
-                );
-
-            let newListing = Listing {
-                listingId: listingId,
-                tokenOwner: tokenOwner,
-                assetContract: assetContract,
-                tokenId: tokenId,
-                startTime: _startTime,
-                endTime: _startTime + secondsUntilEndTime,
-                quantity: tokenAmountToList,
-                currency: currencyToAccept,
-                buyoutPricePerToken: buyoutPricePerToken,
-                // 0 -> erc721, 1 -> erc1155
-                tokenType: tokenTypeOfListing,
-            };
-
-            self.listings.write(listingId, newListing);
-            self
-                .emit(
-                    Event::ListingAdded(
-                        ListingAdded {
-                            listingId, assetContract, lister: tokenOwner, listing: newListing,
-                        }
-                    )
-                );
-        }
-
-        fn cancel_direct_listing(ref self: ContractState, _listingId: u256) {
-            self.only_listing_creator(_listingId);
-            let targetListing = self.listings.read(_listingId);
-            let empty_listing = Listing {
-                listingId: 0,
-                tokenOwner: contract_address_const::<0>(),
-                assetContract: contract_address_const::<0>(),
-                tokenId: 0,
-                startTime: 0,
-                endTime: 0,
-                quantity: 0,
-                currency: contract_address_const::<0>(),
-                buyoutPricePerToken: 0,
-                // 0 -> erc721, 1 -> erc1155
-                // make to default here
-                tokenType: 0,
-            };
-            self.listings.write(_listingId, empty_listing);
-            self
-                .emit(
-                    Event::ListingRemoved(
-                        ListingRemoved {
-                            listingId: _listingId, listingCreator: targetListing.tokenOwner
-                        }
-                    )
-                );
-        }
-
-
-        fn offer(
-            ref self: ContractState,
-            _listingId: u256,
-            _quantityWanted: u256,
-            _currency: ContractAddress,
-            _pricePerToken: u256,
-            _expirationTimestamp: u256
-        ) {
-            self.only_existing_listing(_listingId);
-            let targetListing = self.listings.read(_listingId);
-            assert(
-                targetListing.endTime > get_block_timestamp().into()
-                    && targetListing.startTime < get_block_timestamp().into(),
-                'inactive listing.'
-            );
-            let mut newOffer = Offer {
-                listingId: _listingId,
-                offeror: get_caller_address(),
-                quantityWanted: _quantityWanted,
-                currency: _currency,
-                pricePerToken: _pricePerToken,
-                expirationTimestamp: _expirationTimestamp
-            };
-
-            newOffer
-                .quantityWanted = self
-                .get_safe_quantity(targetListing.tokenType, _quantityWanted);
-            self.handle_offer(targetListing, newOffer);
-        }
-
-        fn accept_offer(
-            ref self: ContractState,
-            _listingId: u256,
-            _offeror: ContractAddress,
-            _currency: ContractAddress,
-            _pricePerToken: u256
-        ) {
-            self.only_listing_creator(_listingId);
-            self.only_existing_listing(_listingId);
-            let targetOffer = self.offers.read((_listingId, _offeror));
-            let targetListing = self.listings.read(_listingId);
-
-            assert(
-                _currency == targetOffer.currency && _pricePerToken == targetOffer.pricePerToken,
-                '!PRICE'
-            );
-            assert(targetOffer.expirationTimestamp > get_block_timestamp().into(), 'EXPIRED');
-            let emptyOffer = Offer {
-                listingId: 0,
-                offeror: contract_address_const::<0>(),
-                quantityWanted: 0,
-                currency: contract_address_const::<0>(),
-                pricePerToken: 0,
-                expirationTimestamp: 0,
-            };
-
-            self.offers.write((_listingId, _offeror), emptyOffer);
-
-            self
-                .execute_sale(
-                    targetListing,
-                    _offeror,
-                    _offeror,
-                    targetOffer.currency,
-                    targetOffer.pricePerToken * targetOffer.quantityWanted,
-                    targetOffer.quantityWanted
-                );
-        }
-
-        fn buy(
-            ref self: ContractState,
-            _listingId: u256,
-            _buyFor: ContractAddress,
-            _quantityToBuy: u256,
-            _currency: ContractAddress,
-            _totalPrice: u256,
-        ) {
-            self.only_existing_listing(_listingId);
-            let targetListing = self.listings.read(_listingId);
-            let payer = get_caller_address();
-
-            assert(
-                _currency == targetListing.currency
-                    && _totalPrice == (targetListing.buyoutPricePerToken * _quantityToBuy),
-                '!PRICE'
-            );
-
-            self
-                .execute_sale(
-                    targetListing,
-                    payer,
-                    _buyFor,
-                    targetListing.currency,
-                    targetListing.buyoutPricePerToken * _quantityToBuy,
-                    _quantityToBuy
-                );
-        }
-
-        fn update_listing(
-            ref self: ContractState,
-            _listingId: u256,
-            _quantityToList: u256,
-            _reservePricePerToken: u256,
-            _buyoutPricePerToken: u256,
-            _currencyToAccept: ContractAddress,
-            mut _startTime: u256,
-            _secondsUntilEndTime: u256,
-        ) {
-            self.only_listing_creator(_listingId);
-            let targetListing = self.listings.read(_listingId);
-            let safeNewQuantity = self.get_safe_quantity(targetListing.tokenType, _quantityToList);
-            assert(safeNewQuantity != 0, 'QUANTITY');
-
-            let timestamp: u256 = get_block_timestamp().into();
-            if (_startTime < timestamp) {
-                assert(timestamp - _startTime < 3600, 'ST');
-                _startTime = timestamp;
-            }
-            let newStartTime = if _startTime == 0 {
-                targetListing.startTime
-            } else {
-                _startTime
-            };
-            self
-                .listings
-                .write(
-                    _listingId,
-                    Listing {
-                        listingId: _listingId,
-                        tokenOwner: get_caller_address(),
-                        assetContract: targetListing.assetContract,
-                        tokenId: targetListing.tokenId,
-                        startTime: newStartTime,
-                        endTime: if _secondsUntilEndTime == 0 {
-                            targetListing.endTime
-                        } else {
-                            newStartTime + _secondsUntilEndTime
-                        },
-                        quantity: safeNewQuantity,
-                        currency: _currencyToAccept,
-                        buyoutPricePerToken: _buyoutPricePerToken,
-                        tokenType: targetListing.tokenType,
-                    }
-                );
-            if (targetListing.quantity != safeNewQuantity) {
-                self
-                    .validate_ownership_and_approval(
-                        targetListing.tokenOwner,
-                        targetListing.assetContract,
-                        targetListing.tokenId,
-                        safeNewQuantity,
-                        targetListing.tokenType
-                    );
-            }
-
-            self
-                .emit(
-                    Event::ListingUpdated(
-                        ListingUpdated {
-                            listingId: _listingId, listingCreator: targetListing.tokenOwner,
-                        }
-                    )
-                );
-        }
-
-        fn get_total_listings(self: @ContractState) -> u256 {
-            self.total_listings.read()
-        }
-    }
-
-    #[generate_trait]
-    impl StorageImpl of StorageTrait {
-        fn get_safe_quantity(
-            self: @ContractState, _tokenType: u256, _quantityToCheck: u256
-        ) -> u256 {
-            if _quantityToCheck == 0 {
-                0
-            } else {
-                if _tokenType == ERC721 {
-                    1
-                } else {
-                    _quantityToCheck
-                }
-            }
-        }
-
-        fn validate_ownership_and_approval(
-            self: @ContractState,
-            _tokenOwner: ContractAddress,
-            _assetContract: ContractAddress,
-            _tokenId: u256,
-            _quantity: u256,
-            _tokenType: u256
-        ) {
-            let market = get_contract_address();
-            let mut isValid: bool = false;
-            if (_tokenType == ERC1155) {
-                let token = IERC1155Dispatcher { contract_address: _assetContract };
-                isValid = token.balance_of(_tokenOwner, _tokenId) >= _quantity
-                    && token.is_approved_for_all(_tokenOwner, market);
-            } else if (_tokenType == ERC721) {
-                let token = IERC721Dispatcher { contract_address: _assetContract };
-                isValid = token.owner_of(_tokenId) == _tokenOwner
-                    && token.get_approved(_tokenId) == market
-                        || token.is_approved_for_all(_tokenOwner, market);
-            }
-
-            assert(isValid, '!BALNFT');
-        }
-
-        fn handle_offer(ref self: ContractState, _targetListing: Listing, _newOffer: Offer) {
-            assert(
-                _newOffer.quantityWanted <= _targetListing.quantity && _targetListing.quantity > 0,
-                'insufficient tokens in listing.'
-            );
-            self
-                .validate_ERC20_bal_and_allowance(
-                    _newOffer.offeror,
-                    _newOffer.currency,
-                    _newOffer.pricePerToken * _newOffer.quantityWanted
-                );
-
-            self.offers.write((_targetListing.listingId, _newOffer.offeror), _newOffer);
-            self
-                .emit(
-                    Event::NewOffer(
-                        NewOffer {
-                            listingId: _targetListing.listingId,
-                            offeror: _newOffer.offeror,
-                            quantityWanted: _newOffer.quantityWanted,
-                            totalOfferAmount: _newOffer.pricePerToken * _newOffer.quantityWanted,
-                            currency: _newOffer.currency
-                        }
-                    )
-                );
-        }
-
-        fn validate_ERC20_bal_and_allowance(
-            ref self: ContractState,
-            _addrToCheck: ContractAddress,
-            _currency: ContractAddress,
-            _currencyAmountToCheckAgainst: u256
-        ) {
-            let token = IERC20Dispatcher { contract_address: _currency };
-            assert(
-                token.balance_of(_addrToCheck) >= _currencyAmountToCheckAgainst
-                    && token
-                        .allowance(
-                            _addrToCheck, get_contract_address()
-                        ) >= _currencyAmountToCheckAgainst,
-                '!BAL20'
-            );
-        }
-
-        fn execute_sale(
-            ref self: ContractState,
-            mut _targetListing: Listing,
-            _payer: ContractAddress,
-            _receiver: ContractAddress,
-            _currency: ContractAddress,
-            _currencyAmountToTransfer: u256,
-            _listingTokenAmountToTransfer: u256,
-        ) {
-            self
-                .validate_direct_listing_sale(
-                    _targetListing,
-                    _payer,
-                    _listingTokenAmountToTransfer,
-                    _currency,
-                    _currencyAmountToTransfer
-                );
-
-            _targetListing.quantity -= _listingTokenAmountToTransfer;
-            self.listings.write(_targetListing.listingId, _targetListing);
-            self
-                .payout(
-                    _payer,
-                    _targetListing.tokenOwner,
-                    _currency,
-                    _currencyAmountToTransfer,
-                    _targetListing
-                );
-            self
-                .transfer_listing_tokens(
-                    _targetListing.tokenOwner,
-                    _receiver,
-                    _listingTokenAmountToTransfer,
-                    _targetListing
-                );
-            self
-                .emit(
-                    Event::NewSale(
-                        NewSale {
-                            listingId: _targetListing.listingId,
-                            assetContract: _targetListing.assetContract,
-                            lister: _targetListing.tokenOwner,
-                            buyer: _receiver,
-                            quantityBought: _listingTokenAmountToTransfer,
-                            totalPricePaid: _currencyAmountToTransfer,
-                        }
-                    )
-                );
-        }
-
-        fn validate_direct_listing_sale(
-            ref self: ContractState,
-            _listing: Listing,
-            _payer: ContractAddress,
-            _quantityToBuy: u256,
-            _currency: ContractAddress,
-            settledTotalPrice: u256,
-        ) {
-            assert(
-                _listing.quantity > 0 && _quantityToBuy > 0 && _quantityToBuy <= _listing.quantity,
-                'invalid amount of tokens.'
-            );
-            assert(
-                get_block_timestamp().into() < _listing.endTime
-                    && get_block_timestamp().into() > _listing.startTime,
-                'not within sale window.'
-            );
-            self.validate_ERC20_bal_and_allowance(_payer, _currency, settledTotalPrice);
-            self
-                .validate_ownership_and_approval(
-                    _listing.tokenOwner,
-                    _listing.assetContract,
-                    _listing.tokenId,
-                    _quantityToBuy,
-                    _listing.tokenType
-                );
-        }
-
-        fn payout(
-            ref self: ContractState,
-            _payer: ContractAddress,
-            _payee: ContractAddress,
-            _currencyToUse: ContractAddress,
-            _totalPayoutAmount: u256,
-            _listing: Listing,
-        ) {
-            self.safe_transfer_ERC20(_currencyToUse, _payer, _payee, _totalPayoutAmount);
-        }
-
-        fn transfer_listing_tokens(
-            ref self: ContractState,
-            _from: ContractAddress,
-            _to: ContractAddress,
-            _quantity: u256,
-            _listing: Listing,
-        ) {
-            if _listing.tokenType == ERC1155 {
-                let token = IERC1155Dispatcher { contract_address: _listing.assetContract };
-                token
-                    .safe_transfer_from(
-                        _from, _to, _listing.tokenId, _quantity, ArrayTrait::<felt252>::new().span()
-                    );
-            } else if _listing.tokenType == ERC721 {
-                let token = IERC721Dispatcher { contract_address: _listing.assetContract };
-                token.transfer_from(_from, _to, _listing.tokenId);
-            }
-        }
-
-        fn safe_transfer_ERC20(
-            ref self: ContractState,
-            _currency: ContractAddress,
-            _from: ContractAddress,
-            _to: ContractAddress,
-            _amount: u256,
-        ) {
-            if (_amount == 0) || (_from == _to) {
-                return;
-            }
-
-            let token = IERC20Dispatcher { contract_address: _currency };
-            if _from == get_contract_address() {
-                token.transfer(_to, _amount);
-            } else {
-                token.transfer_from(_from, _to, _amount);
-            }
-        }
-
-        fn only_listing_creator(self: @ContractState, _listingId: u256) {
-            assert(self.listings.read(_listingId).tokenOwner == get_caller_address(), '!OWNER');
-        }
-
-        fn only_existing_listing(self: @ContractState, _listingId: u256) {
-            assert(
-                self.listings.read(_listingId).assetContract != contract_address_const::<0>(), 'DNE'
-            );
-        }
-    }
-}
-
-```
-
 
 # Writing to any storage slot
 
@@ -1180,11 +452,7 @@ mod WriteToAnySlot {
         result
     }
 }
-
-
-
 ```
-
 
 # Variables
 
@@ -1237,8 +505,6 @@ mod LocalVariablesExample {
         }
     }
 }
-
-
 ```
 
 ## Storage Variables
@@ -1282,8 +548,6 @@ mod StorageVariablesExample {
         }
     }
 }
-
-
 ```
 
 ## Global Variables
@@ -1318,17 +582,15 @@ mod GlobalExample {
         }
     }
 }
-
-
-
 ```
-
 
 # Ownable
 
-The following `Ownable` component is a simple component that allows the contract to set an owner and provides a `_assert_is_owner` function that can be used to ensure that the caller is the owner.
+The following `Ownable` component is a simple component that allows the contract to set an owner and provides a
+`_assert_is_owner` function that can be used to ensure that the caller is the owner.
 
-It can also be used to renounce ownership of a contract, meaning that no one will be able to satisfy the `_assert_is_owner` function.
+It can also be used to renounce ownership of a contract, meaning that no one will be able to satisfy the
+`_assert_is_owner` function.
 
 ```rust
 use starknet::ContractAddress;
@@ -1475,605 +737,12 @@ mod OwnedContract {
         }
     }
 }
-
-
-#[cfg(test)]
-mod tests {
-    use super::{OwnedContract, IOwnedDispatcher, IOwnedDispatcherTrait};
-    use components::ownable::{IOwnable, IOwnableDispatcher, IOwnableDispatcherTrait};
-
-    use core::starknet::storage::StorageMemberAccessTrait;
-
-    use starknet::{contract_address_const, ContractAddress};
-    use starknet::testing::{set_caller_address, set_contract_address};
-    use starknet::deploy_syscall;
-
-    fn deploy() -> (IOwnedDispatcher, IOwnableDispatcher) {
-        let (contract_address, _) = deploy_syscall(
-            OwnedContract::TEST_CLASS_HASH.try_into().unwrap(), 0, array![].span(), false
-        )
-            .unwrap();
-
-        (IOwnedDispatcher { contract_address }, IOwnableDispatcher { contract_address },)
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn test_init() {
-        let owner = contract_address_const::<'owner'>();
-        set_contract_address(owner);
-        let (_, ownable) = deploy();
-
-        assert(ownable.owner() == owner, 'wrong_owner');
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn test_wrong_owner() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (_, ownable) = deploy();
-
-        let not_owner = contract_address_const::<'not_owner'>();
-        assert(ownable.owner() != not_owner, 'wrong_owner');
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn test_do_something() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (contract, _) = deploy();
-
-        contract.do_something();
-    // Should not panic
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    #[should_panic]
-    fn test_do_something_not_owner() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (contract, _) = deploy();
-
-        set_contract_address(contract_address_const::<'not_owner'>());
-        contract.do_something();
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn test_transfer_ownership() {
-        set_contract_address(contract_address_const::<'initial'>());
-        let (contract, ownable) = deploy();
-
-        let new_owner = contract_address_const::<'new_owner'>();
-        ownable.transfer_ownership(new_owner);
-
-        assert(ownable.owner() == new_owner, 'wrong_owner');
-
-        set_contract_address(new_owner);
-        contract.do_something();
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    #[should_panic]
-    fn test_transfer_ownership_not_owner() {
-        set_contract_address(contract_address_const::<'initial'>());
-        let (_, ownable) = deploy();
-
-        set_contract_address(contract_address_const::<'not_owner'>());
-        ownable.transfer_ownership(contract_address_const::<'new_owner'>());
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    #[should_panic]
-    fn test_transfer_ownership_zero_error() {
-        set_contract_address(contract_address_const::<'initial'>());
-        let (_, ownable) = deploy();
-
-        ownable.transfer_ownership(Zeroable::zero());
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn test_renounce_ownership() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (_, ownable) = deploy();
-
-        ownable.renounce_ownership();
-        assert(ownable.owner() == Zeroable::zero(), 'not_zero_owner');
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    #[should_panic]
-    fn test_renounce_ownership_not_owner() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (_, ownable) = deploy();
-
-        set_contract_address(contract_address_const::<'not_owner'>());
-        ownable.renounce_ownership();
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    #[should_panic]
-    fn test_renounce_ownership_previous_owner() {
-        set_contract_address(contract_address_const::<'owner'>());
-        let (contract, ownable) = deploy();
-
-        ownable.renounce_ownership();
-
-        contract.do_something();
-    }
-}
-
-
 ```
-
-
-# ERC20 Token
-
-Contracts that follow the [ERC20 Standard](https://eips.ethereum.org/EIPS/eip-20) are called ERC20 tokens. They are used
-to represent fungible assets.
-
-To create an ERC20 conctract, it must implement the following interface:
-
-```rust
-use starknet::ContractAddress;
-
-
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn get_name(self: @TContractState) -> felt252;
-    fn get_symbol(self: @TContractState) -> felt252;
-    fn get_decimals(self: @TContractState) -> u8;
-    fn get_total_supply(self: @TContractState) -> felt252;
-    fn balance_of(self: @TContractState, account: ContractAddress) -> felt252;
-    fn allowance(
-        self: @TContractState, owner: ContractAddress, spender: ContractAddress
-    ) -> felt252;
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: felt252);
-    fn transfer_from(
-        ref self: TContractState,
-        sender: ContractAddress,
-        recipient: ContractAddress,
-        amount: felt252
-    );
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: felt252);
-    fn increase_allowance(ref self: TContractState, spender: ContractAddress, added_value: felt252);
-    fn decrease_allowance(
-        ref self: TContractState, spender: ContractAddress, subtracted_value: felt252
-    );
-}
-
-
-
-#[starknet::contract]
-mod erc20 {
-    use zeroable::Zeroable;
-    use starknet::get_caller_address;
-    use starknet::contract_address_const;
-    use starknet::ContractAddress;
-
-    #[storage]
-    struct Storage {
-        name: felt252,
-        symbol: felt252,
-        decimals: u8,
-        total_supply: felt252,
-        balances: LegacyMap::<ContractAddress, felt252>,
-        allowances: LegacyMap::<(ContractAddress, ContractAddress), felt252>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        Transfer: Transfer,
-        Approval: Approval,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Transfer {
-        from: ContractAddress,
-        to: ContractAddress,
-        value: felt252,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Approval {
-        owner: ContractAddress,
-        spender: ContractAddress,
-        value: felt252,
-    }
-
-    mod Errors {
-        const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
-        const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
-        const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
-        const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
-        const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
-        const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        recipient: ContractAddress,
-        name: felt252,
-        decimals: u8,
-        initial_supply: felt252,
-        symbol: felt252
-    ) {
-        self.name.write(name);
-        self.symbol.write(symbol);
-        self.decimals.write(decimals);
-        self.mint(recipient, initial_supply);
-    }
-
-    #[abi(embed_v0)]
-    impl IERC20Impl of super::IERC20<ContractState> {
-        fn get_name(self: @ContractState) -> felt252 {
-            self.name.read()
-        }
-
-        fn get_symbol(self: @ContractState) -> felt252 {
-            self.symbol.read()
-        }
-
-        fn get_decimals(self: @ContractState) -> u8 {
-            self.decimals.read()
-        }
-
-        fn get_total_supply(self: @ContractState) -> felt252 {
-            self.total_supply.read()
-        }
-
-        fn balance_of(self: @ContractState, account: ContractAddress) -> felt252 {
-            self.balances.read(account)
-        }
-
-        fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> felt252 {
-            self.allowances.read((owner, spender))
-        }
-
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: felt252) {
-            let sender = get_caller_address();
-            self._transfer(sender, recipient, amount);
-        }
-
-        fn transfer_from(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: felt252
-        ) {
-            let caller = get_caller_address();
-            self.spend_allowance(sender, caller, amount);
-            self._transfer(sender, recipient, amount);
-        }
-
-        fn approve(ref self: ContractState, spender: ContractAddress, amount: felt252) {
-            let caller = get_caller_address();
-            self.approve_helper(caller, spender, amount);
-        }
-
-        fn increase_allowance(
-            ref self: ContractState, spender: ContractAddress, added_value: felt252
-        ) {
-            let caller = get_caller_address();
-            self
-                .approve_helper(
-                    caller, spender, self.allowances.read((caller, spender)) + added_value
-                );
-        }
-
-        fn decrease_allowance(
-            ref self: ContractState, spender: ContractAddress, subtracted_value: felt252
-        ) {
-            let caller = get_caller_address();
-            self
-                .approve_helper(
-                    caller, spender, self.allowances.read((caller, spender)) - subtracted_value
-                );
-        }
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn _transfer(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: felt252
-        ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.balances.write(sender, self.balances.read(sender) - amount);
-            self.balances.write(recipient, self.balances.read(recipient) + amount);
-            self.emit(Transfer { from: sender, to: recipient, value: amount });
-        }
-
-        fn spend_allowance(
-            ref self: ContractState,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: felt252
-        ) {
-            let allowance = self.allowances.read((owner, spender));
-            self.allowances.write((owner, spender), allowance - amount);
-        }
-
-        fn approve_helper(
-            ref self: ContractState,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: felt252
-        ) {
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
-            self.allowances.write((owner, spender), amount);
-            self.emit(Approval { owner, spender, value: amount });
-        }
-
-        fn mint(ref self: ContractState, recipient: ContractAddress, amount: felt252) {
-            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            let supply = self.total_supply.read() + amount; // What can go wrong here?
-            self.total_supply.write(supply);
-            let balance = self.balances.read(recipient) + amount;
-            self.balances.write(recipient, amount);
-            self
-                .emit(
-                    Event::Transfer(
-                        Transfer {
-                            from: contract_address_const::<0>(), to: recipient, value: amount
-                        }
-                    )
-                );
-        }
-    }
-}
-
-
-
-
-
-```
-
-In Starknet, function names should be written in _snake_case_. This is not the case in Solidity, where function names
-are written in _camelCase_. The Starknet ERC20 interface is therefore slightly different from the Solidity ERC20
-interface.
-
-Here's an implementation of the ERC20 interface in Cairo:
-
-```rust
-use starknet::ContractAddress;
-
-
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn get_name(self: @TContractState) -> felt252;
-    fn get_symbol(self: @TContractState) -> felt252;
-    fn get_decimals(self: @TContractState) -> u8;
-    fn get_total_supply(self: @TContractState) -> felt252;
-    fn balance_of(self: @TContractState, account: ContractAddress) -> felt252;
-    fn allowance(
-        self: @TContractState, owner: ContractAddress, spender: ContractAddress
-    ) -> felt252;
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: felt252);
-    fn transfer_from(
-        ref self: TContractState,
-        sender: ContractAddress,
-        recipient: ContractAddress,
-        amount: felt252
-    );
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: felt252);
-    fn increase_allowance(ref self: TContractState, spender: ContractAddress, added_value: felt252);
-    fn decrease_allowance(
-        ref self: TContractState, spender: ContractAddress, subtracted_value: felt252
-    );
-}
-
-
-
-#[starknet::contract]
-mod erc20 {
-    use zeroable::Zeroable;
-    use starknet::get_caller_address;
-    use starknet::contract_address_const;
-    use starknet::ContractAddress;
-
-    #[storage]
-    struct Storage {
-        name: felt252,
-        symbol: felt252,
-        decimals: u8,
-        total_supply: felt252,
-        balances: LegacyMap::<ContractAddress, felt252>,
-        allowances: LegacyMap::<(ContractAddress, ContractAddress), felt252>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        Transfer: Transfer,
-        Approval: Approval,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Transfer {
-        from: ContractAddress,
-        to: ContractAddress,
-        value: felt252,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Approval {
-        owner: ContractAddress,
-        spender: ContractAddress,
-        value: felt252,
-    }
-
-    mod Errors {
-        const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
-        const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
-        const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
-        const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
-        const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
-        const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        recipient: ContractAddress,
-        name: felt252,
-        decimals: u8,
-        initial_supply: felt252,
-        symbol: felt252
-    ) {
-        self.name.write(name);
-        self.symbol.write(symbol);
-        self.decimals.write(decimals);
-        self.mint(recipient, initial_supply);
-    }
-
-    #[abi(embed_v0)]
-    impl IERC20Impl of super::IERC20<ContractState> {
-        fn get_name(self: @ContractState) -> felt252 {
-            self.name.read()
-        }
-
-        fn get_symbol(self: @ContractState) -> felt252 {
-            self.symbol.read()
-        }
-
-        fn get_decimals(self: @ContractState) -> u8 {
-            self.decimals.read()
-        }
-
-        fn get_total_supply(self: @ContractState) -> felt252 {
-            self.total_supply.read()
-        }
-
-        fn balance_of(self: @ContractState, account: ContractAddress) -> felt252 {
-            self.balances.read(account)
-        }
-
-        fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> felt252 {
-            self.allowances.read((owner, spender))
-        }
-
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: felt252) {
-            let sender = get_caller_address();
-            self._transfer(sender, recipient, amount);
-        }
-
-        fn transfer_from(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: felt252
-        ) {
-            let caller = get_caller_address();
-            self.spend_allowance(sender, caller, amount);
-            self._transfer(sender, recipient, amount);
-        }
-
-        fn approve(ref self: ContractState, spender: ContractAddress, amount: felt252) {
-            let caller = get_caller_address();
-            self.approve_helper(caller, spender, amount);
-        }
-
-        fn increase_allowance(
-            ref self: ContractState, spender: ContractAddress, added_value: felt252
-        ) {
-            let caller = get_caller_address();
-            self
-                .approve_helper(
-                    caller, spender, self.allowances.read((caller, spender)) + added_value
-                );
-        }
-
-        fn decrease_allowance(
-            ref self: ContractState, spender: ContractAddress, subtracted_value: felt252
-        ) {
-            let caller = get_caller_address();
-            self
-                .approve_helper(
-                    caller, spender, self.allowances.read((caller, spender)) - subtracted_value
-                );
-        }
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn _transfer(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: felt252
-        ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.balances.write(sender, self.balances.read(sender) - amount);
-            self.balances.write(recipient, self.balances.read(recipient) + amount);
-            self.emit(Transfer { from: sender, to: recipient, value: amount });
-        }
-
-        fn spend_allowance(
-            ref self: ContractState,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: felt252
-        ) {
-            let allowance = self.allowances.read((owner, spender));
-            self.allowances.write((owner, spender), allowance - amount);
-        }
-
-        fn approve_helper(
-            ref self: ContractState,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: felt252
-        ) {
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
-            self.allowances.write((owner, spender), amount);
-            self.emit(Approval { owner, spender, value: amount });
-        }
-
-        fn mint(ref self: ContractState, recipient: ContractAddress, amount: felt252) {
-            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            let supply = self.total_supply.read() + amount; // What can go wrong here?
-            self.total_supply.write(supply);
-            let balance = self.balances.read(recipient) + amount;
-            self.balances.write(recipient, amount);
-            self
-                .emit(
-                    Event::Transfer(
-                        Transfer {
-                            from: contract_address_const::<0>(), to: recipient, value: amount
-                        }
-                    )
-                );
-        }
-    }
-}
-
-
-
-
-
-```
-
-There's several other implementations, such as the
-[Open Zeppelin](https://docs.openzeppelin.com/contracts-cairo/0.7.0/erc20) or the
-[Cairo By Example](https://cairo-by-example.com/examples/erc20/) ones.
-
 
 # Arrays
 
-Arrays are collections of elements of the same type.
-The possible operations on arrays are defined with the `array::ArrayTrait` of the corelib:
+Arrays are collections of elements of the same type. The possible operations on arrays are defined with the
+`array::ArrayTrait` of the corelib:
 
 ```rust
 trait ArrayTrait<T> {
@@ -2110,10 +779,7 @@ fn array() -> bool {
     // Returns true if an array is empty, then false if it isn't.
     arr.is_empty()
 }
-
-
 ```
-
 
 # Hashing
 
@@ -2252,11 +918,7 @@ mod tests {
         );
     }
 }
-
-
-
 ```
-
 
 # Storing Custom Types
 
@@ -2295,11 +957,7 @@ mod StoringCustomType {
         }
     }
 }
-
-
-
 ```
-
 
 # Match
 
@@ -2357,11 +1015,7 @@ fn quiz(num: felt252) -> felt252 {
 
     response
 }
-
-
-
 ```
-
 
 # Storage
 
@@ -2373,14 +1027,13 @@ mod Contract {
     #[storage]
     struct Storage {}
 }
-
-
 ```
 
-Storage is a struct annoted with `#[storage]`. Every contract must have one and only one storage.
-It's a key-value store, where each key will be mapped to a storage address of the contract's storage space.
+Storage is a struct annoted with `#[storage]`. Every contract must have one and only one storage. It's a key-value
+store, where each key will be mapped to a storage address of the contract's storage space.
 
-You can define [storage variables](./variables.md#storage-variables) in your contract, and then use them to store and retrieve data.
+You can define [storage variables](./variables.md#storage-variables) in your contract, and then use them to store and
+retrieve data.
 
 ```rust
 #[starknet::contract]
@@ -2392,19 +1045,18 @@ mod Contract {
         c: u256
     }
 }
-
-
 ```
 
-> Actually these two contracts have the same underlying sierra program.
-> From the compiler's perspective, the storage variables don't exist until they are used.
+> Actually these two contracts have the same underlying sierra program. From the compiler's perspective, the storage
+> variables don't exist until they are used.
 
 You can also read about [storing custom types](./storing-custom-types.md)
 
-
 # Hash Solidity Compatible
 
-This contract demonstrates Keccak hashing in Cairo to match Solidity's keccak256. While both use Keccak, their endianness differs: Cairo is little-endian, Solidity big-endian. The contract achieves compatibility by hashing in big-endian using `keccak_u256s_be_inputs`, and reversing the bytes of the result with `u128_byte_reverse`.
+This contract demonstrates Keccak hashing in Cairo to match Solidity's keccak256. While both use Keccak, their
+endianness differs: Cairo is little-endian, Solidity big-endian. The contract achieves compatibility by hashing in
+big-endian using `keccak_u256s_be_inputs`, and reversing the bytes of the result with `u128_byte_reverse`.
 
 For example:
 
@@ -2443,11 +1095,7 @@ mod SolidityHashExample {
         }
     }
 }
-
-
-
 ```
-
 
 # Contract interfaces and Traits generation
 
@@ -2477,7 +1125,7 @@ In summary, there's two ways to handle interfaces:
 
 ## Explicit interface
 
-```rust
+````rust
 #[starknet::interface]
 trait IExplicitInterfaceContract<TContractState> {
     fn get_value(self: @TContractState) -> u32;
@@ -2502,8 +1150,6 @@ mod ExplicitInterfaceContract {
         }
     }
 }
-
-
 ```
 
 ## Implicit interface
@@ -2530,9 +1176,7 @@ mod ImplicitInterfaceContract {
         }
     }
 }
-
-
-```
+````
 
 > Note: You can import an implicitly generated contract interface with `use contract::{GeneratedContractInterface}`.
 > However, the `Dispatcher` will not be generated automatically.
@@ -2585,11 +1229,7 @@ mod ImplicitInternalContract {
         }
     }
 }
-
-
-
 ```
-
 
 # Custom types in entrypoints
 
@@ -2627,17 +1267,15 @@ mod SerdeCustomType {
         }
     }
 }
-
-
-
 ```
-
 
 # Syscalls
 
 At the protocol level, the Starknet Operating System (OS) is the program that manages the whole Starknet network.
 
-Some of the OS functionalities are exposed to smart contracts through the use of syscalls (system calls). Syscalls can be used to get information about the state of the Starknet network, to interact with/deploy contracts, emit events, send messages, and perform other low-level operations.
+Some of the OS functionalities are exposed to smart contracts through the use of syscalls (system calls). Syscalls can
+be used to get information about the state of the Starknet network, to interact with/deploy contracts, emit events, send
+messages, and perform other low-level operations.
 
 Syscalls return a `SyscallResult` which is either `Sucess` of `Failure`, allowing the contract to handle errors.
 
@@ -2672,8 +1310,7 @@ fn get_execution_info_syscall() -> SyscallResult<Box<starknet::info::ExecutionIn
 
 ```
 
-Get information about the current execution context.
-The returned `ExecutionInfo` is defined as :
+Get information about the current execution context. The returned `ExecutionInfo` is defined as :
 
 ```rust
 #[derive(Copy, Drop, Debug)]
@@ -2746,10 +1383,11 @@ fn call_contract_syscall(
 ) -> SyscallResult<Span<felt252>>
 ```
 
-Call a contract at `address` with the given `entry_point_selector` and `calldata`.
-Failure can't be caught for this syscall, if the call fails, the whole transaction will revert.
+Call a contract at `address` with the given `entry_point_selector` and `calldata`. Failure can't be caught for this
+syscall, if the call fails, the whole transaction will revert.
 
-This is not the recommended way to call a contract. Instead, use the dispatcher generated from the contract interface as shown in the [Calling other contracts](../interacting/calling_other_contracts.md).
+This is not the recommended way to call a contract. Instead, use the dispatcher generated from the contract interface as
+shown in the [Calling other contracts](../interacting/calling_other_contracts.md).
 
 #### deploy
 
@@ -2763,8 +1401,8 @@ deploy_from_zero: bool,
 
 ```
 
-Deploy a new contract of the predeclared class `class_hash` with `calldata`.
-The success result is a tuple containing the deployed contract address and the return value of the constructor.
+Deploy a new contract of the predeclared class `class_hash` with `calldata`. The success result is a tuple containing
+the deployed contract address and the return value of the constructor.
 
 `contract_address_salt` and `deploy_from_zero` are used to compute the contract address.
 
@@ -2838,11 +1476,6 @@ mod CounterFactory {
         }
     }
 }
-
-
-
-
-
 ```
 
 #### emit_event
@@ -2918,11 +1551,6 @@ mod EventCounter {
         }
     }
 }
-
-
-
-
-
 ```
 
 #### library_call
@@ -2934,8 +1562,8 @@ class_hash: ClassHash, function_selector: felt252, calldata: Span<felt252>
 
 ```
 
-Call the function `function_selector` of the class `class_hash` with `calldata`.
-This is analogous to a delegate call in Ethereum, but only a single class is called.
+Call the function `function_selector` of the class `class_hash` with `calldata`. This is analogous to a delegate call in
+Ethereum, but only a single class is called.
 
 #### send_message_to_L1
 
@@ -2956,65 +1584,6 @@ class_hash: ClassHash
 
 ```
 
-Replace the class of the calling contract with the class `class_hash`.
-
-This is used for contract upgrades. Here's an example from the [Upgradeable Contract](../../ch01/upgradeable_contract.md):
-
-```rust
-
-use starknet::class_hash::ClassHash;
-
-#[starknet::interface]
-trait IUpgradeableContract<TContractState> {
-    fn upgrade(ref self: TContractState, impl_hash: ClassHash);
-    fn version(self: @TContractState) -> u8;
-}
-
-#[starknet::contract]
-mod UpgradeableContract_V0 {
-    use starknet::class_hash::ClassHash;
-    use starknet::SyscallResultTrait;
-
-    #[storage]
-    struct Storage {}
-
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        Upgraded: Upgraded
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Upgraded {
-        implementation: ClassHash
-    }
-
-    #[abi(embed_v0)]
-    impl UpgradeableContract of super::IUpgradeableContract<ContractState> {
-
-        fn upgrade(ref self: ContractState, impl_hash: ClassHash) {
-            assert(!impl_hash.is_zero(), 'Class hash cannot be zero');
-            starknet::replace_class_syscall(impl_hash).unwrap_syscall();
-            self.emit(Event::Upgraded(Upgraded { implementation: impl_hash }))
-        }
-
-
-        fn version(self: @ContractState) -> u8 {
-            0
-        }
-    }
-}
-
-
-
-
-
-```
-
-The new class code will only be used for future calls to the contract.
-The current transaction containing the `replace_class` syscall will continue to use the old class code. (You can explicitly use the new class code by calling `call_contract` after the `replace_class` syscall in the same transaction)
-
 #### storage_read
 
 ```rust
@@ -3026,8 +1595,8 @@ address_domain: u32, address: StorageAddress,
 
 This low-level syscall is used to get the value in the storage of a specific key at `address` in the `address_domain`.
 
-`address_domain` is used to distinguish between data availability modes.
-Currently, only mode `ONCHAIN` (`0`) is supported.
+`address_domain` is used to distinguish between data availability modes. Currently, only mode `ONCHAIN` (`0`) is
+supported.
 
 #### storage_write
 
@@ -3037,14 +1606,17 @@ fn storage_write_syscall(
 ) -> SyscallResult<()>
 ```
 
-Similar to `storage_read`, this low-level syscall is used to write the value `value` in the storage of a specific key at `address` in the `address_domain`.
+Similar to `storage_read`, this low-level syscall is used to write the value `value` in the storage of a specific key at
+`address` in the `address_domain`.
 
 ## Documentation
 
-Syscalls are defined in [`starknet::syscall`](https://github.com/starkware-libs/cairo/blob/ec14a5e2c484190ff40811c973a72a53739cedb7/corelib/src/starknet/syscalls.cairo)
+Syscalls are defined in
+[`starknet::syscall`](https://github.com/starkware-libs/cairo/blob/ec14a5e2c484190ff40811c973a72a53739cedb7/corelib/src/starknet/syscalls.cairo)
 
-You can also read the [official documentation page](https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/) for more details.
-
+You can also read the
+[official documentation page](https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/)
+for more details.
 
 # Constructor
 
@@ -3077,19 +1649,16 @@ mod ExampleConstructor {
 
 ```
 
-
 # List
 
-By default, there is no list type supported in Cairo, but you can use Alexandria. You can refer to the [Alexandria documentation](https://github.com/keep-starknet-strange/alexandria/tree/main/src/storage) for more details.
+By default, there is no list type supported in Cairo, but you can use Alexandria. You can refer to the
+[Alexandria documentation](https://github.com/keep-starknet-strange/alexandria/tree/main/src/storage) for more details.
 
 ## What is `List`?
 
 An ordered sequence of values that can be used in Starknet storage:
 
-cairo #[storage]
-stuct Storage {
-amounts: List<u128>
-}
+cairo #[storage] stuct Storage { amounts: List<u128> }
 
 ````
 
@@ -3118,14 +1687,18 @@ Note that unlike `get`, using this bracket notation panics when accessing an out
 
 ### Support for custom types
 
-`List` supports most of the corelib types out of the box. If you want to store a your own custom type in a `List`, it has to implement the `Store` trait. You can have the compiler derive it for you using the `#[derive(starknet::Store)]` attribute.
+`List` supports most of the corelib types out of the box. If you want to store a your own custom type in a `List`, it
+has to implement the `Store` trait. You can have the compiler derive it for you using the `#[derive(starknet::Store)]`
+attribute.
 
 ### Caveats
 
 There are two idiosyncacies you should be aware of when using `List`
 
-1. The `append` operation costs 2 storage writes - one for the value itself and another one for updating the List's length
-2. Due to a compiler limitation, it is not possible to use mutating operations with a single inline statement. For example, `self.amounts.read().append(42);` will not work. You have to do it in 2 steps:
+1. The `append` operation costs 2 storage writes - one for the value itself and another one for updating the List's
+   length
+2. Due to a compiler limitation, it is not possible to use mutating operations with a single inline statement. For
+   example, `self.amounts.read().append(42);` will not work. You have to do it in 2 steps:
 
 ```rust
 let mut amounts = self.amounts.read();
@@ -3221,7 +1794,6 @@ mod ListExample {
 
 
 ```
-
 
 # Errors
 
@@ -3365,7 +1937,6 @@ mod VaultErrorsExample {
 
 ```
 
-
 # Factory Pattern
 
 The factory pattern is a well known pattern in object oriented programming. It provides an abstraction on how to
@@ -3472,7 +2043,6 @@ function which allows to reuse the same factory contract when the `SimpleCounter
 
 This minimal example lacks several useful features such as access control, tracking of deployed contracts, events, ...
 
-
 # Tuples
 
 Tuples is a data type to group a fixed number of items of potentially different types into a single compound structure.
@@ -3498,14 +2068,21 @@ fn tuple() {
 
 ```
 
-
 # Storing Arrays
 
-On Starknet, complex values (e.g., tuples or structs), are stored in a continuous segment starting from the address of the storage variable. There is a 256 field elements limitation to the maximal size of a complex storage value, meaning that to store arrays of more than 255 elements in storage, we would need to split it into segments of size `n <= 255` and store these segments in multiple storage addresses. There is currently no native support for storing arrays in Cairo, so you will need to write your own implementation of the `Store` trait for the type of array you wish to store.
+On Starknet, complex values (e.g., tuples or structs), are stored in a continuous segment starting from the address of
+the storage variable. There is a 256 field elements limitation to the maximal size of a complex storage value, meaning
+that to store arrays of more than 255 elements in storage, we would need to split it into segments of size `n <= 255`
+and store these segments in multiple storage addresses. There is currently no native support for storing arrays in
+Cairo, so you will need to write your own implementation of the `Store` trait for the type of array you wish to store.
 
-> Note: While storing arrays in storage is possible, it is not always recommended, as the read and write operations can get very costly. For example, reading an array of size `n` requires `n` storage reads, and writing to an array of size `n` requires `n` storage writes. If you only need to access a single element of the array at a time, it is recommended to use a `LegacyMap` and store the length in another variable instead.
+> Note: While storing arrays in storage is possible, it is not always recommended, as the read and write operations can
+> get very costly. For example, reading an array of size `n` requires `n` storage reads, and writing to an array of size
+> `n` requires `n` storage writes. If you only need to access a single element of the array at a time, it is recommended
+> to use a `LegacyMap` and store the length in another variable instead.
 
-The following example demonstrates how to write a simple implementation of the `StorageAccess` trait for the `Array<felt252>` type, allowing us to store arrays of up to 255 `felt252` elements.
+The following example demonstrates how to write a simple implementation of the `StorageAccess` trait for the
+`Array<felt252>` type, allowing us to store arrays of up to 255 `felt252` elements.
 
 ```rust
 use starknet::{
@@ -3717,7 +2294,6 @@ mod StoreArrayContract {
 
 ```
 
-
 # Structs as mapping keys
 
 In order to use structs as mapping keys, you can use `#[derive(Hash)]` on the struct definition. This will automatically
@@ -3766,7 +2342,6 @@ mod PetRegistry {
 
 
 ```
-
 
 # Visibility and Mutability
 
@@ -3853,7 +2428,6 @@ mod ExampleContract {
 
 ```
 
-
 # Mapping
 
 The `LegacyMap` type can be used to represent a collection of key-value.
@@ -3914,39 +2488,6 @@ mod MappingContract {
 
 ```
 
-
-```rust
-use starknet::ContractAddress;
-
-#[derive(Copy, Drop)]
-struct ERC721Receiver {
-    contract_address: ContractAddress
-}
-
-trait ERC721ReceiverTrait {
-    fn on_erc721_received(
-        self: @ERC721Receiver,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252;
-}
-
-impl ERC721ReceiverImpl of ERC721ReceiverTrait {
-    fn on_erc721_received(
-        self: @ERC721Receiver,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        ''
-    }
-}
-```
-
-
 # Simple Counter
 
 This is a simple counter contract.
@@ -4004,7 +2545,6 @@ mod SimpleCounter {
 
 ```
 
-
 # Felt252
 
 Felt252 is a fundamental data type in Cairo from which all other data types are derived. Felt252 can also be used to
@@ -4021,134 +2561,13 @@ fn felt() {
     let felt = felt + felt_as_str;
 
 }
-
-
-
 ```
-
-
-# Simple Defi Vault
-
-This is the Cairo adaptation of the [Solidity by example Vault](https://solidity-by-example.org/defi/vault/). Here's how
-it works:
-
-- When a user deposits a token, the contract calculates the amount of shares to mint.
-
-- When a user withdraws, the contract burns their shares, calculates the yield, and withdraw both the yield and the
-  initial amount of token deposited.
-
-```rust
-use starknet::{ContractAddress};
-
-// In order to make contract calls within our Vault,
-// we need to have the interface of the remote ERC20 contract defined to import the Dispatcher.
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn name(self: @TContractState) -> felt252;
-    fn symbol(self: @TContractState) -> felt252;
-    fn decimals(self: @TContractState) -> u8;
-    fn total_supply(self: @TContractState) -> u256;
-    fn balance_of(self: @TContractState, account: ContractAddress) -> u256;
-    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
-    fn transfer_from(
-        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> bool;
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
-}
-
-#[starknet::interface]
-trait ISimpleVault<TContractState> {
-    fn deposit(ref self: TContractState, amount: u256);
-    fn withdraw(ref self: TContractState, shares: u256);
-}
-
-#[starknet::contract]
-mod SimpleVault {
-    use super::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use starknet::{ContractAddress, get_caller_address, get_contract_address};
-    #[storage]
-    struct Storage {
-        token: IERC20Dispatcher,
-        total_supply: u256,
-        balance_of: LegacyMap<ContractAddress, u256>
-    }
-
-    #[constructor]
-    fn constructor(ref self: ContractState, token: ContractAddress) {
-        self.token.write(IERC20Dispatcher { contract_address: token });
-    }
-
-    #[generate_trait]
-    impl PrivateFunctions of PrivateFunctionsTrait {
-        fn _mint(ref self: ContractState, to: ContractAddress, shares: u256) {
-            self.total_supply.write(self.total_supply.read() + shares);
-            self.balance_of.write(to, self.balance_of.read(to) + shares);
-        }
-
-        fn _burn(ref self: ContractState, from: ContractAddress, shares: u256) {
-            self.total_supply.write(self.total_supply.read() - shares);
-            self.balance_of.write(from, self.balance_of.read(from) - shares);
-        }
-    }
-
-    #[abi(embed_v0)]
-    impl SimpleVault of super::ISimpleVault<ContractState> {
-        fn deposit(ref self: ContractState, amount: u256) {
-            // a = amount
-            // B = balance of token before deposit
-            // T = total supply
-            // s = shares to mint
-            //
-            // (T + s) / T = (a + B) / B
-            //
-            // s = aT / B
-            let caller = get_caller_address();
-            let this = get_contract_address();
-
-            let mut shares = 0;
-            if self.total_supply.read() == 0 {
-                shares = amount;
-            } else {
-                let balance = self.token.read().balance_of(this);
-                shares = (amount * self.total_supply.read()) / balance;
-            }
-
-            PrivateFunctions::_mint(ref self, caller, shares);
-            self.token.read().transfer_from(caller, this, amount);
-        }
-
-        fn withdraw(ref self: ContractState, shares: u256) {
-            // a = amount
-            // B = balance of token before withdraw
-            // T = total supply
-            // s = shares to burn
-            //
-            // (T - s) / T = (B - a) / B
-            //
-            // a = sB / T
-            let caller = get_caller_address();
-            let this = get_contract_address();
-
-            let balance = self.token.read().balance_of(this);
-            let amount = (shares * balance) / self.total_supply.read();
-            PrivateFunctions::_burn(ref self, caller, shares);
-            self.token.read().transfer(caller, amount);
-        }
-    }
-}
-
-
-
-
-```
-
 
 # Components How-To
 
-Components are like modular addons that can be snapped into contracts to add reusable logic, storage, and events.
-They are used to separate the core logic from common functionalities, simplifying the contract's code and making it easier to read and maintain.
-It also reduces the risk of bugs and vulnerabilities by using well-tested components.
+Components are like modular addons that can be snapped into contracts to add reusable logic, storage, and events. They
+are used to separate the core logic from common functionalities, simplifying the contract's code and making it easier to
+read and maintain. It also reduces the risk of bugs and vulnerabilities by using well-tested components.
 
 Key characteristics:
 
@@ -4158,10 +2577,11 @@ Key characteristics:
 
 ## How to create a component
 
-The following example shows a simple `Switchable` component that can be used to add a switch that can be either on or off.
-It contains a storage variable `switchable_value`, a function `switch` and an event `Switch`.
+The following example shows a simple `Switchable` component that can be used to add a switch that can be either on or
+off. It contains a storage variable `switchable_value`, a function `switch` and an event `Switch`.
 
-> It is a good practice to prefix the component storage variables with the component name to [avoid collisions](./collisions.md).
+> It is a good practice to prefix the component storage variables with the component name to
+> [avoid collisions](./collisions.md).
 
 ```rust
 
@@ -4226,18 +2646,19 @@ A component in itself is really similar to a contract, it _can_ also have:
 - Events
 - Internal functions
 
-It don't have a constructor, but you can create a `_init` internal function and call it from the contract's constructor. In the previous example, the `_off` function is used this way.
+It don't have a constructor, but you can create a `_init` internal function and call it from the contract's constructor.
+In the previous example, the `_off` function is used this way.
 
-> It's currently not possible to use the same component multiple times in the same contract.
-> This is a known limitation that may be lifted in the future.
+> It's currently not possible to use the same component multiple times in the same contract. This is a known limitation
+> that may be lifted in the future.
 >
-> For now, you can view components as an implementation of a specific interface/feature (`Ownable`, `Upgradeable`, ... `~able`).
-> This is why we called it `Switchable` and not `Switch`; The contract _is switchable_, not _has a switch_.
+> For now, you can view components as an implementation of a specific interface/feature (`Ownable`, `Upgradeable`, ...
+> `~able`). This is why we called it `Switchable` and not `Switch`; The contract _is switchable_, not _has a switch_.
 
 ## How to use a component
 
-Now that we have a component, we can use it in a contract.
-The following contract incorporates the `Switchable` component:
+Now that we have a component, we can use it in a contract. The following contract incorporates the `Switchable`
+component:
 
 ```rust
 
@@ -4330,362 +2751,8 @@ mod tests {
 
 ## Deep dive into components
 
-You can find more in-depth information about components in the [Cairo book - Components](https://book.cairo-lang.org/ch99-01-05-00-components.html).
-
-
-```rust
-use starknet::ContractAddress;
-
-#[starknet::interface] trait IERC721<TContractState> { fn get_name(self: @TContractState) -> felt252; fn
-get_symbol(self: @TContractState) -> felt252; fn token_uri(self: @TContractState, token_id: u256) -> felt252; fn
-balance_of(self: @TContractState, account: ContractAddress) -> u256; fn is_approved_for_all( self: @TContractState,
-owner: ContractAddress, operator: ContractAddress ) -> bool;
-
-    fn owner_of(self: @TContractState, token_id: u256) -> ContractAddress;
-    fn get_approved(self: @TContractState, token_id: u256) -> ContractAddress;
-
-    fn set_approval_for_all(ref self: TContractState, operator: ContractAddress, approved: bool);
-    fn approve(ref self: TContractState, to: ContractAddress, token_id: u256);
-    fn transfer_from(
-        ref self: TContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-    );
-    fn mint(ref self: TContractState, recipient: ContractAddress, token_id: u256);
-
-}
-
-#[starknet::contract] mod ERC721 { use starknet::get_caller_address; use starknet::contract_address_const; use
-starknet::ContractAddress; use traits::Into; use zeroable::Zeroable; use traits::TryInto; use array::SpanTrait; use
-array::ArrayTrait; use array::ArrayTCloneImpl; use option::OptionTrait;
-
-    use super::super::erc721_receiver::ERC721Receiver;
-    use super::super::erc721_receiver::ERC721ReceiverTrait;
-
-
-    #[storage]
-    struct Storage {
-        name: felt252,
-        symbol: felt252,
-        owners: LegacyMap::<u256, ContractAddress>,
-        balances: LegacyMap::<ContractAddress, u256>,
-        token_approvals: LegacyMap::<u256, ContractAddress>,
-        /// (owner, operator)
-        operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        Approval: Approval,
-        Transfer: Transfer,
-        ApprovalForAll: ApprovalForAll,
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Approval {
-        owner: ContractAddress,
-        to: ContractAddress,
-        token_id: u256
-    }
-    #[derive(Drop, starknet::Event)]
-    struct Transfer {
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256
-    }
-    #[derive(Drop, starknet::Event)]
-    struct ApprovalForAll {
-        owner: ContractAddress,
-        operator: ContractAddress,
-        approved: bool
-    }
-
-    #[constructor]
-    fn constructor(ref self: ContractState, _name: felt252, _symbol: felt252) {
-        self.name.write(_name);
-        self.symbol.write(_symbol);
-    }
-
-    #[abi(embed_v0)]
-    impl IERC721Impl of super::IERC721<ContractState> {
-        fn get_name(self: @ContractState) -> felt252 {
-            self.name.read()
-        }
-
-        fn get_symbol(self: @ContractState) -> felt252 {
-            self.symbol.read()
-        }
-
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            assert(!account.is_zero(), 'ERC721: address zero');
-            self.balances.read(account)
-        }
-
-        fn is_approved_for_all(
-            self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
-            self._is_approved_for_all(owner, operator)
-        }
-
-        fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-            self._require_minted(token_id);
-            let base_uri = self._base_uri();
-            base_uri + token_id.try_into().unwrap()
-        }
-
-        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            let owner = self._owner_of(token_id);
-            assert(!owner.is_zero(), 'ERC721: invalid token ID');
-            owner
-        }
-
-        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            self._get_approved(token_id)
-        }
-
-        fn transfer_from(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-        ) {
-            assert(
-                self._is_approved_or_owner(get_caller_address(), token_id),
-                'Caller is not owner or appvored'
-            );
-            self._transfer(from, to, token_id);
-        }
-
-        fn set_approval_for_all(
-            ref self: ContractState, operator: ContractAddress, approved: bool
-        ) {
-            self._set_approval_for_all(get_caller_address(), operator, approved);
-        }
-
-        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            let owner = self._owner_of(token_id);
-            // Unlike Solidity, require is not supported, only assert can be used
-            // The max length of error msg is 31 or there's an error
-            assert(to != owner, 'Approval to current owner');
-            assert(
-                (get_caller_address() == owner)
-                    || self._is_approved_for_all(owner, get_caller_address()),
-                'Not token owner'
-            );
-            self._approve(to, token_id);
-        }
-
-        fn mint(ref self: ContractState, recipient: ContractAddress, token_id: u256) {
-            self._safe_mint(recipient, token_id);
-        }
-    }
-
-    #[external(v0)]
-    fn safe_transfer_from(
-        ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-    ) {
-        assert(
-            self._is_approved_or_owner(get_caller_address(), token_id),
-            'caller is not owner | approved'
-        );
-        self._safe_transfer(from, to, token_id, ArrayTrait::<felt252>::new().span());
-    }
-
-
-    /// looks like overloading is not supported currently
-    // fn safe_transfer_from(
-    //     ref self: ContractState,
-    //     from: ContractAddress,
-    //     to: ContractAddress,
-    //     token_id: u256,
-    //     _data: Span<felt252>
-    // ) {
-    //     assert(self._is_approved_or_owner(get_caller_address(), token_id),
-    //         'caller is not owner | approved');
-    //     self._safe_transfer(from, to, token_id, _data);
-    // }
-
-    // function _safeMint(address to, uint256 tokenId)
-
-    #[generate_trait]
-    impl StorageImpl of StorageTrait {
-        fn _set_approval_for_all(
-            ref self: ContractState,
-            owner: ContractAddress,
-            operator: ContractAddress,
-            approved: bool
-        ) {
-            assert(owner != operator, 'ERC721: approve to caller');
-            self.operator_approvals.write((owner, operator), approved);
-            self.emit(Event::ApprovalForAll(ApprovalForAll { owner, operator, approved }));
-        }
-
-        fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            self.token_approvals.write(token_id, to);
-            self.emit(Event::Approval(Approval { owner: self._owner_of(token_id), to, token_id }));
-        }
-
-        fn _is_approved_for_all(
-            self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
-            self.operator_approvals.read((owner, operator))
-        }
-
-        fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            self.owners.read(token_id)
-        }
-
-        fn _exists(self: @ContractState, token_id: u256) -> bool {
-            !self._owner_of(token_id).is_zero()
-        }
-
-        fn _base_uri(self: @ContractState) -> felt252 {
-            ''
-        }
-
-        fn _get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            self._require_minted(token_id);
-            self.token_approvals.read(token_id)
-        }
-
-        fn _require_minted(self: @ContractState, token_id: u256) {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
-        }
-
-        fn _is_approved_or_owner(
-            self: @ContractState, spender: ContractAddress, token_id: u256
-        ) -> bool {
-            let owner = self.owners.read(token_id);
-            (spender == owner)
-                || self._is_approved_for_all(owner, spender)
-                || (self._get_approved(token_id) == spender)
-        }
-
-        fn _transfer(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-        ) {
-            assert(from == self._owner_of(token_id), 'Transfer from incorrect owner');
-            assert(!to.is_zero(), 'ERC721: transfer to 0');
-
-            self._before_token_transfer(from, to, token_id, 1.into());
-            assert(from == self._owner_of(token_id), 'Transfer from incorrect owner');
-
-            self.token_approvals.write(token_id, contract_address_const::<0>());
-
-            self.balances.write(from, self.balances.read(from) - 1.into());
-            self.balances.write(to, self.balances.read(to) + 1.into());
-
-            self.owners.write(token_id, to);
-
-            self.emit(Event::Transfer(Transfer { from, to, token_id }));
-
-            self._after_token_transfer(from, to, token_id, 1.into());
-        }
-
-        fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            assert(!to.is_zero(), 'ERC721: mint to 0');
-            assert(!self._exists(token_id), 'ERC721: already minted');
-            self._before_token_transfer(contract_address_const::<0>(), to, token_id, 1.into());
-            assert(!self._exists(token_id), 'ERC721: already minted');
-
-            self.balances.write(to, self.balances.read(to) + 1.into());
-            self.owners.write(token_id, to);
-            // contract_address_const::<0>() => means 0 address
-            self
-                .emit(
-                    Event::Transfer(Transfer { from: contract_address_const::<0>(), to, token_id })
-                );
-
-            self._after_token_transfer(contract_address_const::<0>(), to, token_id, 1.into());
-        }
-
-
-        fn _burn(ref self: ContractState, token_id: u256) {
-            let owner = self._owner_of(token_id);
-            self._before_token_transfer(owner, contract_address_const::<0>(), token_id, 1.into());
-            let owner = self._owner_of(token_id);
-            self.token_approvals.write(token_id, contract_address_const::<0>());
-
-            self.balances.write(owner, self.balances.read(owner) - 1.into());
-            self.owners.write(token_id, contract_address_const::<0>());
-            self
-                .emit(
-                    Event::Transfer(
-                        Transfer { from: owner, to: contract_address_const::<0>(), token_id }
-                    )
-                );
-
-            self._after_token_transfer(owner, contract_address_const::<0>(), token_id, 1.into());
-        }
-
-        fn _safe_mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            self._mint(to, token_id);
-            assert(
-                self
-                    ._check_on_ERC721_received(
-                        contract_address_const::<0>(),
-                        to,
-                        token_id,
-                        ArrayTrait::<felt252>::new().span()
-                    ),
-                'transfer to non ERC721Receiver'
-            );
-        }
-
-        /// looks like overloading is not supported currently
-        // fn _safe_mint(
-        //     ref self: ContractState,
-        //     to: ContractAddress,
-        //     token_id: u256,
-        //     _data: Span<felt252>
-        // ) {
-        //     self._mint(to, token_id);
-        //     assert(self._check_on_ERC721_received(contract_address_const::<0>(), to, token_id, _data),
-        //         'transfer to non ERC721Receiver');
-        // }
-
-        fn _safe_transfer(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            _data: Span<felt252>
-        ) {
-            self._transfer(from, to, token_id);
-            assert(
-                self._check_on_ERC721_received(from, to, token_id, _data),
-                'transfer to non ERC721Receiver'
-            );
-        }
-
-        fn _check_on_ERC721_received(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            _data: Span<felt252>
-        ) -> bool {
-            ERC721Receiver { contract_address: to }
-                .on_erc721_received(get_caller_address(), from, token_id, _data);
-            // todo
-            true
-        }
-
-        fn _before_token_transfer(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            first_token_id: u256,
-            batch_size: u256
-        ) {}
-
-        fn _after_token_transfer(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            first_token_id: u256,
-            batch_size: u256
-        ) {}
-    }
-
-}
-```
-
+You can find more in-depth information about components in the
+[Cairo book - Components](https://book.cairo-lang.org/ch99-01-05-00-components.html).
 
 # Struct
 
@@ -4702,7 +2769,6 @@ struct Data {
 
 
 ```
-
 
 # Type casting
 
@@ -4738,9 +2804,4 @@ fn type_casting() {
     let new_usize: usize = my_felt252.try_into().unwrap();
 
 }
-
-
-
 ```
-
-

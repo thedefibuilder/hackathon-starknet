@@ -1,7 +1,7 @@
-import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
+import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from '@langchain/core/prompts';
 import { z } from 'zod';
 
-import { jsonGeneratorAgent } from './json';
+import { jsonAgent } from './json';
 
 export const auditJsonSchema = z.object({
   audits: z
@@ -27,5 +27,5 @@ export function auditorAgent() {
     inputVariables: ['code'],
   });
 
-  return prompt.pipe(jsonGeneratorAgent('gpt-4-1106-preview', auditJsonSchema));
+  return prompt.pipe(jsonAgent('gpt-4-1106-preview', auditJsonSchema));
 }

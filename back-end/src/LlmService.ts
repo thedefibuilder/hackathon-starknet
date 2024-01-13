@@ -1,21 +1,46 @@
 import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
+import mongoose from 'mongoose';
 
 import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
-import { BuildResponse, Vulnerability } from './types';
+import SDoc from './db-schemas/docs';
+import SPrompt, { TPrompt } from './db-schemas/prompts';
+import { BuildResponse, ContractType, Vulnerability } from './types';
 
 dotenv.config();
 
 export class LlmService {
-  async callCairoGeneratorLLM(description: string, contractType: string): Promise<string> {
-    const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
-    return await cairoGeneratorAgent().invoke({
-      docs,
-      description,
-      contractType,
+  constructor() {
+    mongoose.connect(process.env.MONGO_DB_URI || '').catch((error) => {
+      console.log('Error connecting to the DB', error);
     });
+  }
+
+  private trimCode(code: string) {
+    const codeMatch = new RegExp(`\`\`\`rust([\\s\\S]*?)\`\`\``, 'g').exec(code);
+    return codeMatch ? codeMatch[1].trim() : code;
+  }
+
+  async getPrompts(): Promise<TPrompt[]> {
+    return SPrompt.find({});
+  }
+
+  async getPromptByTemplate(template: ContractType): Promise<TPrompt[]> {
+    return SPrompt.find({ template });
+  }
+
+  async callCairoGeneratorLLM(customization: string, contractType: ContractType): Promise<string> {
+    const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
+    const templateDoc = await SDoc.findOne({ template: contractType });
+    const responseCode = await cairoGeneratorAgent().invoke({
+      docs,
+      example: templateDoc?.example || '',
+      customization,
+    });
+
+    return this.trimCode(responseCode);
   }
 
   async buildCairoCode(smartContractCode: string): Promise<BuildResponse> {

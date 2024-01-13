@@ -1,9 +1,9 @@
-import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
+import { JsonOutputParser } from '@langchain/core/output_parsers';
+import { ChatOpenAI } from '@langchain/openai';
 import { ZodSchema } from 'zod';
 import zodToJsonSchema from 'zod-to-json-schema';
 
-export function jsonGeneratorAgent(modelName: string, schema: ZodSchema) {
+export function jsonAgent(modelName: string, schema: ZodSchema) {
   const llm = new ChatOpenAI({
     openAIApiKey: process.env.OPENAI_API_KEY,
     modelName,
@@ -21,5 +21,5 @@ export function jsonGeneratorAgent(modelName: string, schema: ZodSchema) {
     function_call: { name: 'output_formatter' },
   });
 
-  return functionCallingModel.pipe(new JsonOutputFunctionsParser());
+  return functionCallingModel.pipe(new JsonOutputParser());
 }

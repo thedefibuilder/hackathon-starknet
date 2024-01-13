@@ -23,11 +23,11 @@ const templates: ITemplate[] = [
     isActive: true
   },
   {
-    name: 'Staking',
+    name: 'Edition',
     isActive: false
   },
   {
-    name: 'Farm',
+    name: 'Vault',
     isActive: false
   },
   {
@@ -35,7 +35,7 @@ const templates: ITemplate[] = [
     isActive: false
   },
   {
-    name: 'Launchpad',
+    name: 'Exchange',
     isActive: false
   }
 ];
@@ -118,3 +118,4 @@ export default function HomePage() {
     </div>
   );
 }
+
