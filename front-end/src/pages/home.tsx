@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import EReducerState from '@/constants/reducer-state';
+import { compileContractInitialState, compileContractReducer } from '@/reducers/compile-contract';
 import {
   generateContractInitialState,
   generateContractReducer
@@ -70,13 +71,27 @@ export default function HomePage() {
     generateContractInitialState
   );
 
+  const [compileContractState, dispatchCompileContract] = useReducer(
+    compileContractReducer,
+    compileContractInitialState
+  );
+
   async function initCreation() {
     dispatchGenerateContract({
       state: EReducerState.reset,
       payload: null
     });
 
+    dispatchCompileContract({
+      state: EReducerState.reset,
+      payload: null
+    });
+
     const contractCode = await generateContract();
+
+    if (contractCode) {
+      await compileContract(contractCode);
+    }
   }
 
   async function generateContract() {
@@ -125,6 +140,50 @@ export default function HomePage() {
     }
 
     return null;
+  }
+
+  async function compileContract(contractCode: string) {
+    console.log('COMPILING CONTRACT');
+
+    try {
+      dispatchCompileContract({
+        state: EReducerState.start,
+        payload: null
+      });
+
+      const compileContractResponse = await LlmService.buildCairoCode(contractCode);
+
+      if (
+        compileContractResponse === null ||
+        compileContractResponse === undefined ||
+        !compileContractResponse.success
+      ) {
+        dispatchCompileContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR COMPILING CONTRACT', compileContractResponse);
+
+        return;
+      }
+
+      dispatchCompileContract({
+        state: EReducerState.success,
+        payload: compileContractResponse.artifact as string
+      });
+
+      console.log('COMPILATION RESPONSE', compileContractResponse);
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatchCompileContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR COMPILING CONTRACT', error.message);
+      }
+    }
   }
 
   return (
