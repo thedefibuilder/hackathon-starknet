@@ -320,8 +320,12 @@ export default function HomePage() {
               setPrompt={setPrompt}
             />
 
-            <div className='mt-5 flex w-full items-start justify-between px-10'>
-              <Button disabled={isGenerationLoading} onClick={() => initCreation()}>
+            <div className='mt-5 flex w-full flex-col items-center justify-center gap-y-5 px-5 md:flex-row md:items-start md:justify-between md:px-10'>
+              <Button
+                disabled={isGenerationLoading}
+                onClick={() => initCreation()}
+                className='w-full md:w-auto'
+              >
                 {isGenerationLoading ? (
                   <div className='flex items-center gap-x-2.5'>
                     <Loader2 className='animate-spin' />
