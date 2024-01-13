@@ -80,7 +80,7 @@ export default function HomePage() {
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
-      <Suspense fallback={<Skeleton className='h-40 w-full md:mt-16' />}>
+      <Suspense fallback={<Skeleton className='h-40 w-full rounded-3xl md:mt-16' />}>
         <HeaderSection
           chainsName={chainsName}
           chainsDocumentationLink={chainsDocumentationLink}
@@ -89,7 +89,7 @@ export default function HomePage() {
       </Suspense>
 
       <div className='flex flex-col items-center gap-y-5 rounded-3xl border-2 border-border py-5 backdrop-blur-md md:gap-y-10 md:py-10'>
-        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <TemplatesSection
             chainsName={chainsName}
             templates={templates}
@@ -98,7 +98,7 @@ export default function HomePage() {
           />
         </Suspense>
 
-        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <PromptSection
             chainsName={chainsName}
             predefinedPrompts={predefinedPrompts}
@@ -107,7 +107,7 @@ export default function HomePage() {
           />
         </Suspense>
 
-        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <CodeViewerSection
             chainsName={chainsName}
             smartContractCode={smartContractCode}
