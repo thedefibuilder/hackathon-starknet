@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
 
+import type { PropsWithChildren } from 'react';
+import type { ButtonProperties } from './ui/button';
+
 import { Check, FileDown } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 import { Button } from './ui/button';
 
-interface IDownloadButton {
-  onClick: () => void;
-  buttonClassName?: string;
+interface IDownloadButton extends PropsWithChildren, ButtonProperties {
+  onButtonClick: () => void;
   iconClassName?: string;
 }
 
 export default function DownloadButton({
-  onClick: onDownloadButtonClick,
-  buttonClassName,
-  iconClassName
+  children,
+  onButtonClick,
+  iconClassName,
+  ...buttonProperties
 }: IDownloadButton) {
   const [isContentDownloaded, setIsContentDownloaded] = useState(false);
   const [switchIconTimeout, setSwitchIconTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -29,9 +32,14 @@ export default function DownloadButton({
   }, [switchIconTimeout]);
 
   function onClick() {
-    setIsContentDownloaded(true);
+    if (!children) {
+      onButtonClick();
 
-    onDownloadButtonClick();
+      return;
+    }
+
+    setIsContentDownloaded(true);
+    onButtonClick();
 
     const switchIconTimeout = setTimeout(() => {
       setIsContentDownloaded(false);
@@ -41,11 +49,15 @@ export default function DownloadButton({
   }
 
   return (
-    <Button size='icon' variant='outline' className={cn(buttonClassName)} onClick={onClick}>
-      {isContentDownloaded ? (
-        <Check className={cn('h-5 w-5', iconClassName)} />
-      ) : (
-        <FileDown className={cn('h-5 w-5', iconClassName)} />
+    <Button onClick={onClick} {...buttonProperties}>
+      {children ?? (
+        <>
+          {isContentDownloaded ? (
+            <Check className={cn('h-5 w-5', iconClassName)} />
+          ) : (
+            <FileDown className={cn('h-5 w-5', iconClassName)} />
+          )}
+        </>
       )}
     </Button>
   );

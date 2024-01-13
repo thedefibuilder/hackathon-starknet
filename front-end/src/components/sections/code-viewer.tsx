@@ -56,14 +56,16 @@ export default function CodeViewerSection({
         )}
 
         <DownloadButton
-          onClick={() =>
+          size='icon'
+          variant='outline'
+          className='absolute right-5 top-5'
+          onButtonClick={() =>
             downloadContent(
               smartContractCode,
               `smart-contract.${smartContractFileExtension}`,
               'text/plain'
             )
           }
-          buttonClassName='absolute right-5 top-5'
         />
       </div>
     </SectionContainer>
