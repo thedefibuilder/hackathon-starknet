@@ -1,17 +1,29 @@
 import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
+import mongoose from 'mongoose';
 
 import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
+import SPrompt, { TPrompt } from './db-schemas/prompts';
 import { BuildResponse, ContractType, Vulnerability } from './types';
 
 dotenv.config();
 
 export class LlmService {
+  constructor() {
+    mongoose.connect(process.env.MONGO_DB_URI || '').catch((error) => {
+      console.log('Error connecting to the DB', error);
+    });
+  }
+
   private trimCode(code: string) {
     const codeMatch = new RegExp(`\`\`\`rust([\\s\\S]*?)\`\`\``, 'g').exec(code);
     return codeMatch ? codeMatch[1].trim() : code;
+  }
+
+  async getPrompts(): Promise<TPrompt[]> {
+    return await SPrompt.find({});
   }
 
   async callCairoGeneratorLLM(description: string, contractType: ContractType): Promise<string> {
