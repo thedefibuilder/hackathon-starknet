@@ -3,6 +3,7 @@ import React from 'react';
 import chainLogo from '@/assets/images/chain-logo.png';
 import stepBackground from '@/assets/images/step.svg';
 
+import ExternalAnchor from '../external-anchor';
 import { Button } from '../ui/button';
 import SectionContainer from './container';
 
@@ -38,15 +39,10 @@ export default function HeaderSection({
           </h2>
         </div>
 
-        <Button variant='secondary' className='mt-5 md:mt-0' asChild>
-          <a
-            href={chainsDocumentationLink}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-lg'
-          >
+        <Button size='lg' variant='secondary' className='mt-5 md:mt-0' asChild>
+          <ExternalAnchor href={chainsDocumentationLink} className='text-base md:text-lg'>
             Explore Docs
-          </a>
+          </ExternalAnchor>
         </Button>
       </div>
     </SectionContainer>
