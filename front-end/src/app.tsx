@@ -1,19 +1,23 @@
 import React from 'react';
 
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import Footer from './components/footer';
-import Navbar from './components/navbar';
+import Layout from './components/layout';
+import { Toaster } from './components/ui/toast/toaster';
+import HomePage from './pages/home';
+import NotFoundPage from './pages/not-found';
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <Layout>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='*' element={<NotFoundPage />} />
+        </Routes>
 
-      <main className='flex h-full flex-col items-center justify-center'>
-        <h1 className='text-2xl'>Starknet | DeFi Builder</h1>
-      </main>
-      <Footer />
+        <Toaster />
+      </Layout>
     </BrowserRouter>
   );
 }

@@ -4,14 +4,15 @@ import { partytownVite } from '@builder.io/partytown/utils';
 import react from '@vitejs/plugin-react-swc';
 import { defineConfig } from 'vite';
 
+// @ts-ignore
 import config from './_config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+      '@': path.resolve(__dirname, './src')
+    }
   },
   plugins: [
     react(),
