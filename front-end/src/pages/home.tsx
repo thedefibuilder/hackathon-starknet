@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import EReducerState from '@/constants/reducer-state';
+import { auditContractInitialState, auditContractReducer } from '@/reducers/audit-contract';
 import { compileContractInitialState, compileContractReducer } from '@/reducers/compile-contract';
 import {
   generateContractInitialState,
@@ -76,6 +77,11 @@ export default function HomePage() {
     compileContractInitialState
   );
 
+  const [auditContractState, dispatchAuditContract] = useReducer(
+    auditContractReducer,
+    auditContractInitialState
+  );
+
   async function initCreation() {
     dispatchGenerateContract({
       state: EReducerState.reset,
@@ -87,10 +93,16 @@ export default function HomePage() {
       payload: null
     });
 
+    dispatchAuditContract({
+      state: EReducerState.reset,
+      payload: null
+    });
+
     const contractCode = await generateContract();
 
     if (contractCode) {
       await compileContract(contractCode);
+      await auditContract(contractCode);
     }
   }
 
@@ -182,6 +194,50 @@ export default function HomePage() {
         });
 
         console.error('ERROR COMPILING CONTRACT', error.message);
+      }
+    }
+  }
+
+  async function auditContract(contractCode: string) {
+    console.log('AUDITING CONTRACT');
+
+    try {
+      dispatchAuditContract({
+        state: EReducerState.start,
+        payload: null
+      });
+
+      const auditContractResponse = await LlmService.callAuditorLLM(contractCode);
+
+      if (
+        auditContractResponse === null ||
+        auditContractResponse === undefined ||
+        !Array.isArray(auditContractResponse)
+      ) {
+        dispatchAuditContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR AUDITING CONTRACT', auditContractResponse);
+
+        return;
+      }
+
+      dispatchAuditContract({
+        state: EReducerState.success,
+        payload: auditContractResponse
+      });
+
+      console.log('AUDITION RESPONSE', auditContractResponse);
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatchAuditContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR AUDITING CONTRACT', error.message);
       }
     }
   }
