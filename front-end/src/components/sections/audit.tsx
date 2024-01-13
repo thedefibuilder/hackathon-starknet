@@ -1,12 +1,18 @@
 /* eslint-disable unicorn/no-array-reduce */
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import type IAudit from '@/interfaces/audit';
 import type { VulnerabilitySeverity } from '@/sdk/src/types';
 
+import { pdf } from '@react-pdf/renderer';
+import { Loader2 } from 'lucide-react';
+
+import downloadContent from '@/lib/download';
 import { cn } from '@/lib/utils';
 
+import AuditPdf from '../audit-pdf';
+import DownloadButton from '../download-button';
 import { Card, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
@@ -18,6 +24,8 @@ interface IAuditSection {
 }
 
 export default function AuditSection({ chainsName, audit }: IAuditSection) {
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   const lowSeverityCount = audit
     .filter((response) => response.severity)
     .reduce((accumulator, currentAudit) => {
@@ -39,10 +47,36 @@ export default function AuditSection({ chainsName, audit }: IAuditSection) {
 
   return (
     <SectionContainer>
-      <h3 className='text-xl font-semibold md:text-2xl lg:text-3xl'>Smart Contract Audit</h3>
-      <h4 className='text-base font-medium text-muted-foreground md:text-lg'>
-        Get to know how&apos;s your {chainsName} Smart Contract
-      </h4>
+      <div className='flex flex-col items-start justify-between md:flex-row'>
+        <div className='flex flex-col'>
+          <h3 className='text-xl font-semibold md:text-2xl lg:text-3xl'>Smart Contract Audit</h3>
+          <h4 className='text-base font-medium text-muted-foreground md:text-lg'>
+            Get to know how&apos;s your {chainsName} Smart Contract
+          </h4>
+        </div>
+
+        {audit.length > 0 && (
+          <DownloadButton
+            onButtonClick={async () => {
+              setIsGeneratingPdf(true);
+
+              const blobPdf = await pdf(<AuditPdf audit={audit} />).toBlob();
+              downloadContent(blobPdf, 'DeFi Builder - Smart contract audit.pdf');
+
+              setIsGeneratingPdf(false);
+            }}
+          >
+            {isGeneratingPdf ? (
+              <div className='flex items-center gap-x-2.5'>
+                <Loader2 className='animate-spin' />
+                <span>Generating PDF</span>
+              </div>
+            ) : (
+              <span>Download Audit</span>
+            )}
+          </DownloadButton>
+        )}
+      </div>
 
       <div className='mt-5 flex w-full flex-col gap-2.5 sm:flex-row'>
         <Card className='h-full w-full sm:w-1/3'>
