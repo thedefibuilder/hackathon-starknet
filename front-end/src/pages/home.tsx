@@ -112,10 +112,7 @@ export default function HomePage() {
       number: 4,
       step: 'Completed',
       isLoading: false,
-      isSuccess:
-        generateContractState.isSuccess &&
-        compileContractState.isSuccess &&
-        auditContractState.isSuccess,
+      isSuccess: generateContractState.isSuccess && auditContractState.isSuccess,
       isError:
         generateContractState.isError && compileContractState.isError && auditContractState.isError,
       isStepConnected: false
