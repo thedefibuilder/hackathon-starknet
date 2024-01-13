@@ -1,9 +1,18 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useReducer, useState } from 'react';
 
 import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
 
+import { Loader2 } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import EReducerState from '@/constants/reducer-state';
+import {
+  generateContractInitialState,
+  generateContractReducer
+} from '@/reducers/generate-contract';
+import { LlmService } from '@/sdk/llmService.sdk';
 
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
 const TemplatesSection = React.lazy(() => import('@/components/sections/templates'));
@@ -47,28 +56,6 @@ const predefinedPrompts: IPredefinedPrompt[] = [
     description: 'Token name must be X , with ticket Y and a total supply of 100000.'
   }
 ];
-
-const smartContractCode = `// SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-contract XToken is ERC20, Ownable {
-
-    constructor() ERC20("X", "Y") {
-        _mint(msg.sender, 100000 * (10 ** uint256(decimals())));
-    }
-
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
-
-    function burn(uint256 amount) public {
-        _burn(msg.sender, amount);
-    }
-}`;
-
 const smartContractFileExtension = '.cairo';
 
 export default function HomePage() {
@@ -77,6 +64,68 @@ export default function HomePage() {
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
   const [prompt, setPrompt] = useState('');
+
+  const [generateContractState, dispatchGenerateContract] = useReducer(
+    generateContractReducer,
+    generateContractInitialState
+  );
+
+  async function initCreation() {
+    dispatchGenerateContract({
+      state: EReducerState.reset,
+      payload: null
+    });
+
+    const contractCode = await generateContract();
+  }
+
+  async function generateContract() {
+    console.log('GENERATING CONTRACT');
+
+    try {
+      dispatchGenerateContract({
+        state: EReducerState.start,
+        payload: null
+      });
+
+      const contractCodeResponse = await LlmService.callCairoGeneratorLLM(prompt, 'ERC20');
+
+      if (
+        contractCodeResponse === null ||
+        contractCodeResponse === undefined ||
+        typeof contractCodeResponse !== 'string'
+      ) {
+        dispatchGenerateContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR GENERATING CONTRACT', contractCodeResponse);
+
+        return null;
+      }
+
+      dispatchGenerateContract({
+        state: EReducerState.success,
+        payload: contractCodeResponse
+      });
+
+      console.log('CONTRACT CODE', contractCodeResponse);
+
+      return contractCodeResponse;
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatchGenerateContract({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR GENERATING CONTRACT', error.message);
+      }
+    }
+
+    return null;
+  }
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
@@ -99,20 +148,37 @@ export default function HomePage() {
         </Suspense>
 
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
-          <PromptSection
-            chainsName={chainsName}
-            predefinedPrompts={predefinedPrompts}
-            prompt={prompt}
-            setPrompt={setPrompt}
-          />
+          <div className='flex w-full flex-col items-start'>
+            <PromptSection
+              chainsName={chainsName}
+              predefinedPrompts={predefinedPrompts}
+              prompt={prompt}
+              setPrompt={setPrompt}
+            />
+
+            <div className='mt-5 flex w-full items-center justify-between px-10'>
+              <Button disabled={generateContractState.isLoading} onClick={() => initCreation()}>
+                {generateContractState.isLoading ? (
+                  <div className='flex items-center gap-x-2.5'>
+                    <Loader2 className='animate-spin' />
+                    <span>Generating Smart Contract</span>
+                  </div>
+                ) : (
+                  <span>Generate Smart Contract</span>
+                )}
+              </Button>
+            </div>
+          </div>
         </Suspense>
 
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
-          <CodeViewerSection
-            chainsName={chainsName}
-            smartContractCode={smartContractCode}
-            smartContractFileExtension={smartContractFileExtension}
-          />
+          {generateContractState.contractCode && (
+            <CodeViewerSection
+              chainsName={chainsName}
+              smartContractCode={generateContractState.contractCode}
+              smartContractFileExtension={smartContractFileExtension}
+            />
+          )}
         </Suspense>
       </div>
     </div>
