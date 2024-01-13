@@ -83,6 +83,11 @@ export default function HomePage() {
     auditContractInitialState
   );
 
+  const isGenerationLoading =
+    generateContractState.isLoading ||
+    compileContractState.isLoading ||
+    auditContractState.isLoading;
+
   const creationSteps = [
     {
       number: 1,
@@ -308,9 +313,9 @@ export default function HomePage() {
               setPrompt={setPrompt}
             />
 
-            <div className='mt-5 flex w-full items-center justify-between px-10'>
-              <Button disabled={generateContractState.isLoading} onClick={() => initCreation()}>
-                {generateContractState.isLoading ? (
+            <div className='mt-5 flex w-full items-start justify-between px-10'>
+              <Button disabled={isGenerationLoading} onClick={() => initCreation()}>
+                {isGenerationLoading ? (
                   <div className='flex items-center gap-x-2.5'>
                     <Loader2 className='animate-spin' />
                     <span>Generating Smart Contract</span>
