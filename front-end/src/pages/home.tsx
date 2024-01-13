@@ -5,6 +5,7 @@ import type ITemplate from '@/interfaces/template';
 
 import { Loader2 } from 'lucide-react';
 
+import ContractCreationSteps from '@/components/contract-creation-steps';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import EReducerState from '@/constants/reducer-state';
@@ -81,6 +82,45 @@ export default function HomePage() {
     auditContractReducer,
     auditContractInitialState
   );
+
+  const creationSteps = [
+    {
+      number: 1,
+      step: 'Generating',
+      isLoading: generateContractState.isLoading,
+      isSuccess: generateContractState.isSuccess,
+      isError: generateContractState.isError,
+      isStepConnected: true
+    },
+    {
+      number: 2,
+      step: 'Compiling',
+      isLoading: compileContractState.isLoading,
+      isSuccess: compileContractState.isSuccess,
+      isError: compileContractState.isError,
+      isStepConnected: true
+    },
+    {
+      number: 3,
+      step: 'Auditing',
+      isLoading: auditContractState.isLoading,
+      isSuccess: auditContractState.isSuccess,
+      isError: auditContractState.isError,
+      isStepConnected: true
+    },
+    {
+      number: 4,
+      step: 'Completed',
+      isLoading: false,
+      isSuccess:
+        generateContractState.isSuccess &&
+        compileContractState.isSuccess &&
+        auditContractState.isSuccess,
+      isError:
+        generateContractState.isError && compileContractState.isError && auditContractState.isError,
+      isStepConnected: false
+    }
+  ];
 
   async function initCreation() {
     dispatchGenerateContract({
@@ -282,6 +322,8 @@ export default function HomePage() {
                   <span>Generate Smart Contract</span>
                 )}
               </Button>
+
+              <ContractCreationSteps steps={creationSteps} />
             </div>
           </div>
         </Suspense>
