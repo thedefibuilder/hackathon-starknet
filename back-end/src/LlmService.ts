@@ -10,10 +10,8 @@ dotenv.config();
 
 export class LlmService {
   async callCairoGeneratorLLM(description: string, contractType: string): Promise<string> {
-    const docs = readFileSync(__dirname + '/data/starknet-by-example.md', 'utf-8');
-    const cairoGenerator = await cairoGeneratorAgent();
-
-    return await cairoGenerator.invoke({
+    const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
+    return await cairoGeneratorAgent().invoke({
       docs,
       description,
       contractType,
