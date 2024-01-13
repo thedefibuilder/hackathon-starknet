@@ -1,22 +1,19 @@
 /* eslint-disable unicorn/no-array-reduce */
 
-import React, { useState } from 'react';
+import React, { Suspense } from 'react';
 
 import type IAudit from '@/interfaces/audit';
 import type { VulnerabilitySeverity } from '@/sdk/src/types';
 
-import { pdf } from '@react-pdf/renderer';
-import { Loader2 } from 'lucide-react';
-
-import downloadContent from '@/lib/download';
 import { cn } from '@/lib/utils';
 
-import AuditPdf from '../audit-pdf';
-import DownloadButton from '../download-button';
 import { Card, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
+import { Skeleton } from '../ui/skeleton';
 import SectionContainer from './container';
+
+const DownloadAuditButton = React.lazy(() => import('../download-audit-button'));
 
 interface IAuditSection {
   chainsName: string;
@@ -24,8 +21,6 @@ interface IAuditSection {
 }
 
 export default function AuditSection({ chainsName, audit }: IAuditSection) {
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-
   const lowSeverityCount = audit
     .filter((response) => response.severity)
     .reduce((accumulator, currentAudit) => {
@@ -56,25 +51,9 @@ export default function AuditSection({ chainsName, audit }: IAuditSection) {
         </div>
 
         {audit.length > 0 && (
-          <DownloadButton
-            onButtonClick={async () => {
-              setIsGeneratingPdf(true);
-
-              const blobPdf = await pdf(<AuditPdf audit={audit} />).toBlob();
-              downloadContent(blobPdf, 'DeFi Builder - Smart contract audit.pdf');
-
-              setIsGeneratingPdf(false);
-            }}
-          >
-            {isGeneratingPdf ? (
-              <div className='flex items-center gap-x-2.5'>
-                <Loader2 className='animate-spin' />
-                <span>Generating PDF</span>
-              </div>
-            ) : (
-              <span>Download Audit</span>
-            )}
-          </DownloadButton>
+          <Suspense fallback={<Skeleton className='h-10 w-40' />}>
+            <DownloadAuditButton audit={audit} />
+          </Suspense>
         )}
       </div>
 
