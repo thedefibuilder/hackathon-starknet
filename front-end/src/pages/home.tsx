@@ -21,6 +21,7 @@ import { LlmService } from '@/sdk/llmService.sdk';
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
 const TemplatesSection = React.lazy(() => import('@/components/sections/templates'));
 const PromptSection = React.lazy(() => import('@/components/sections/prompt'));
+const AuditSection = React.lazy(() => import('@/components/sections/audit'));
 const CodeViewerSection = React.lazy(() => import('@/components/sections/code-viewer'));
 
 const chainsName = 'Starknet';
@@ -339,6 +340,12 @@ export default function HomePage() {
               <ContractCreationSteps steps={creationSteps} />
             </div>
           </div>
+        </Suspense>
+
+        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
+          {auditContractState.isSuccess && auditContractState.audit ? (
+            <AuditSection chainsName={chainsName} audit={auditContractState.audit} />
+          ) : null}
         </Suspense>
 
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
