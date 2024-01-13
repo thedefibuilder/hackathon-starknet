@@ -1,5 +1,5 @@
-import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { ChatOpenAI } from '@langchain/openai';
+import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 import { ZodSchema } from 'zod';
 import zodToJsonSchema from 'zod-to-json-schema';
 
@@ -21,5 +21,5 @@ export function jsonAgent(modelName: string, schema: ZodSchema) {
     function_call: { name: 'output_formatter' },
   });
 
-  return functionCallingModel.pipe(new JsonOutputParser());
+  return functionCallingModel.pipe(new JsonOutputFunctionsParser());
 }
