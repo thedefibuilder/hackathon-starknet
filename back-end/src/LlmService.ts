@@ -24,7 +24,11 @@ export class LlmService {
   }
 
   async getPrompts(): Promise<TPrompt[]> {
-    return await SPrompt.find({});
+    return SPrompt.find({});
+  }
+
+  async getPromptByTemplate(template: ContractType): Promise<TPrompt[]> {
+    return SPrompt.find({ template });
   }
 
   async callCairoGeneratorLLM(customization: string, contractType: ContractType): Promise<string> {
