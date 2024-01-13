@@ -89,7 +89,9 @@ export default function HomePage() {
     compileContractState.isLoading ||
     auditContractState.isLoading;
 
-  const isGenerationCompleted = generateContractState.isSuccess && auditContractState.isSuccess;
+  const isGenerationCompleted =
+    (generateContractState.isError || generateContractState.isSuccess) &&
+    (auditContractState.isError || auditContractState.isSuccess);
 
   const creationSteps = [
     {
