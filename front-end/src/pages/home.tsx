@@ -2,6 +2,7 @@ import React, { Suspense, useReducer, useState } from 'react';
 
 import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
+import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
 
@@ -36,19 +37,19 @@ const templates: ITemplate[] = [
   },
   {
     name: 'Edition',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Vault',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Marketplace',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Exchange',
-    isActive: false
+    isActive: true
   }
 ];
 
@@ -159,7 +160,10 @@ export default function HomePage() {
         payload: null
       });
 
-      const contractCodeResponse = await LlmService.callCairoGeneratorLLM(prompt, 'ERC20');
+      const contractCodeResponse = await LlmService.callCairoGeneratorLLM(
+        prompt,
+        activeTemplateName as ContractType
+      );
 
       if (
         contractCodeResponse === null ||
@@ -185,14 +189,12 @@ export default function HomePage() {
 
       return contractCodeResponse;
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchGenerateContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchGenerateContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR GENERATING CONTRACT', error.message);
-      }
+      console.error('ERROR GENERATING CONTRACT', error);
     }
 
     return null;
@@ -231,14 +233,12 @@ export default function HomePage() {
 
       console.log('COMPILATION RESPONSE', compileContractResponse);
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchCompileContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchCompileContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR COMPILING CONTRACT', error.message);
-      }
+      console.error('ERROR COMPILING CONTRACT', error);
     }
   }
 
@@ -275,14 +275,12 @@ export default function HomePage() {
 
       console.log('AUDITION RESPONSE', auditContractResponse);
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchAuditContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchAuditContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR AUDITING CONTRACT', error.message);
-      }
+      console.error('ERROR AUDITING CONTRACT', error);
     }
   }
 
@@ -356,4 +354,3 @@ export default function HomePage() {
     </div>
   );
 }
-
