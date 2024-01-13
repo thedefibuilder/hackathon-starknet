@@ -29,10 +29,10 @@ export class LlmService {
 
   async callCairoGeneratorLLM(customization: string, contractType: ContractType): Promise<string> {
     const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
-    const example = SDoc.findOne({ contractType: contractType }).select('example');
+    const templateDoc = await SDoc.findOne({ template: contractType });
     const responseCode = await cairoGeneratorAgent().invoke({
       docs,
-      example,
+      example: templateDoc?.example || '',
       customization,
     });
 

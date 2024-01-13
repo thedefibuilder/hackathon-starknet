@@ -3,7 +3,7 @@ import { ChatOpenAI } from '@langchain/openai';
 import { ZodSchema } from 'zod';
 import zodToJsonSchema from 'zod-to-json-schema';
 
-export function jsonGeneratorAgent(modelName: string, schema: ZodSchema) {
+export function jsonAgent(modelName: string, schema: ZodSchema) {
   const llm = new ChatOpenAI({
     openAIApiKey: process.env.OPENAI_API_KEY,
     modelName,
