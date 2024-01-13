@@ -4,16 +4,16 @@ import { ChatOpenAI } from '@langchain/openai';
 
 export function cairoGeneratorAgent() {
   const systemMsg =
-    'Your function is to interpret user requests specifically for smart contract development in the Cairo language for Starknet blockchain. You must generate complete code exclusively, without any explanatory or conversational text and placeholder comments. Focus on the user-provided documentation and follow the exact language syntax as in provided examples.';
+    'Your function is to interpret user requests specifically for smart contract development in the Cairo language for Starknet blockchain. You must generate complete code exclusively, without any explanatory or conversational text and placeholder comments. Focus on the user-provided documentation and code examples and follow the exact language syntax.';
   const userMsg =
-    'Documentation: {docs}. \n\n Request: Create a starknet Cairo smart contract of a {contractType} type, with the following functionalities {description}.';
+    'Cairo Language Documentation: {docs}. \n\n Template example: {example} \n\n Request: Based on the provided example apply the following customization "{customization}"';
 
   const prompt = new ChatPromptTemplate({
     promptMessages: [
       SystemMessagePromptTemplate.fromTemplate(systemMsg),
       HumanMessagePromptTemplate.fromTemplate(userMsg),
     ],
-    inputVariables: ['docs', 'contractType', 'description'],
+    inputVariables: ['docs', 'example', 'customization'],
   });
 
   const llm = new ChatOpenAI({

@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { auditJsonSchema, auditorAgent } from './agents/audit';
 import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
+import SDoc from './db-schemas/docs';
 import SPrompt, { TPrompt } from './db-schemas/prompts';
 import { BuildResponse, ContractType, Vulnerability } from './types';
 
@@ -26,12 +27,13 @@ export class LlmService {
     return await SPrompt.find({});
   }
 
-  async callCairoGeneratorLLM(description: string, contractType: ContractType): Promise<string> {
+  async callCairoGeneratorLLM(customization: string, contractType: ContractType): Promise<string> {
     const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
+    const example = SDoc.findOne({ contractType: contractType }).select('example');
     const responseCode = await cairoGeneratorAgent().invoke({
       docs,
-      description,
-      contractType,
+      example,
+      customization,
     });
 
     return this.trimCode(responseCode);

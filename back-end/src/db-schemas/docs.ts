@@ -10,4 +10,4 @@ const docSchema = new Schema<TDoc>({
   example: { type: String, required: true },
 });
 
-export default model<TDoc>('SDocs', docSchema, 'docs');
+export default model<TDoc>('SDoc', docSchema, 'docs');
