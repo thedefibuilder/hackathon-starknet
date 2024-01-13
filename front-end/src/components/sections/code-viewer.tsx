@@ -26,7 +26,7 @@ export default function CodeViewerSection({
 }: ISmartContractCodeSection) {
   return (
     <SectionContainer>
-      <div className='flex items-start justify-between'>
+      <div className='flex flex-col items-start justify-between md:flex-row'>
         <div className='flex flex-col'>
           <h3 className='text-xl font-semibold md:text-2xl lg:text-3xl'>Smart Contract Code</h3>
           <h4 className='text-base font-medium text-muted-foreground md:text-lg'>
@@ -35,7 +35,9 @@ export default function CodeViewerSection({
         </div>
 
         {contractArtifacts && (
-          <Button onClick={onDeployContractClick}>Deploy Smart Contract</Button>
+          <Button className='mt-5 w-full md:mt-0 md:w-auto' onClick={onDeployContractClick}>
+            Deploy Smart Contract
+          </Button>
         )}
       </div>
 
