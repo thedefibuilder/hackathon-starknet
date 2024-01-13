@@ -88,8 +88,8 @@ export default function HomePage() {
         />
       </Suspense>
 
-      <div className='flex flex-col gap-y-5 rounded-3xl border-2 border-border py-5 backdrop-blur-md md:gap-y-10 md:py-10'>
-        <Suspense fallback={<Skeleton className='h-60 w-full' />}>
+      <div className='flex flex-col items-center gap-y-5 rounded-3xl border-2 border-border py-5 backdrop-blur-md md:gap-y-10 md:py-10'>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
           <TemplatesSection
             chainsName={chainsName}
             templates={templates}
@@ -98,7 +98,7 @@ export default function HomePage() {
           />
         </Suspense>
 
-        <Suspense fallback={<Skeleton className='h-60 w-full' />}>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
           <PromptSection
             chainsName={chainsName}
             predefinedPrompts={predefinedPrompts}
@@ -107,7 +107,7 @@ export default function HomePage() {
           />
         </Suspense>
 
-        <Suspense fallback={<Skeleton className='h-60 w-full' />}>
+        <Suspense fallback={<Skeleton className='h-60 w-[95%]' />}>
           <CodeViewerSection
             chainsName={chainsName}
             smartContractCode={smartContractCode}
