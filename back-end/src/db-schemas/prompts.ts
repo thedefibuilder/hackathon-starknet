@@ -1,13 +1,13 @@
 import { Schema, model } from 'mongoose';
 
 export type TPrompt = {
-  contracType: string;
+  template: string;
   title: string;
   description: string;
 };
 
 const promptSchema = new Schema<TPrompt>({
-  contracType: { type: String, required: true },
+  template: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
 });
