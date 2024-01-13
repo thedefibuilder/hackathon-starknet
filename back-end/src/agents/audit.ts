@@ -16,8 +16,8 @@ export const auditJsonSchema = z.object({
 });
 
 export function auditorAgent() {
+  const systemMsg = `Your task is to analyze and assess smart contracts for auditing purposes by identifying the severity of the vulnerabilities, summarize them in a short title and description. Do not specify overflow/underflow vulnerabilities. The report should be generated in JSON format and should always follow the provided schema.`;
   const userMsg = `Generate a smart contract auditing report in JSON format by carefully including the title, severity and description of the issue, given the following code: {code}`;
-  const systemMsg = `Your task is to analyze and assess smart contracts for auditing purposes by identifying the severity of the vulnerabilities, summarize them in a short title and description. The report should be generated in JSON format and should always follow the provided schema.`;
 
   const prompt = new ChatPromptTemplate({
     promptMessages: [

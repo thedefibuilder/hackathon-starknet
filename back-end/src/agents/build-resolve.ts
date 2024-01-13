@@ -2,7 +2,7 @@ import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
 import { StringOutputParser } from 'langchain/schema/output_parser';
 
-export function buildResolverAgent(modelName: string) {
+export function buildResolverAgent() {
   const systemMsg =
     'Your task is to resolve compiler errors from the provided code. You must generate complete smart contract code exclusively without any explanatory or conversational text. You must not change any other parts of the code that are not related to solving the compiler error. You must provide back full code that compiles, not only the parts that need to be fixed.';
   const question = `Resolve the compiler error "{compilerError}" from the following code: \n {code}`;
@@ -16,7 +16,7 @@ export function buildResolverAgent(modelName: string) {
   });
   const llm = new ChatOpenAI({
     openAIApiKey: process.env.OPENAI_API_KEY,
-    modelName,
+    modelName: 'gpt-4-1106-preview',
     temperature: 0.2,
     modelKwargs: { seed: 1337 },
   });
