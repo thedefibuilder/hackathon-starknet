@@ -29,8 +29,12 @@ export default function PromptSection({
       <div className='relative'>
         <Textarea
           value={userPrompt}
-          placeholder='Insert token name, supply and others customisations'
-          className='mt-5 h-60 w-full resize-none rounded-3xl p-5'
+          placeholder={
+            predefinedPrompts && predefinedPrompts.length > 0
+              ? `i. e. ${predefinedPrompts[0].description}`
+              : `Type the customisations for your ${chainsName} Smart Contract`
+          }
+          className='mt-5 h-60 w-full resize-none rounded-3xl p-5 placeholder:italic'
           onChange={(event) => setUserPrompt(event.target.value)}
         />
 
