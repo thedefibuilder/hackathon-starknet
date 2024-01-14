@@ -1,7 +1,6 @@
 import React from 'react';
 
 import chainLogo from '@/assets/images/chain-logo.png';
-import stepBackground from '@/assets/images/step.svg';
 
 import ExternalAnchor from '../external-anchor';
 import { Button } from '../ui/button';
@@ -19,12 +18,7 @@ export default function HeaderSection({
   className
 }: IHeaderSection) {
   return (
-    <SectionContainer
-      className={className}
-      style={{
-        background: `url(${stepBackground}) no-repeat`
-      }}
-    >
+    <SectionContainer className={className}>
       <div className='flex w-full flex-col justify-between md:flex-row'>
         <div className='flex flex-col gap-y-2.5'>
           <div className='flex items-center gap-x-2.5'>

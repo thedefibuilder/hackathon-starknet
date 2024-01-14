@@ -5,6 +5,8 @@ import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
 
+import stepBackground from '@/assets/images/step.svg';
+import BorderedContainer from '@/components/bordered-container';
 import ContractCreationSteps from '@/components/contract-creation-steps';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -337,15 +339,21 @@ export default function HomePage() {
 
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
-      <Suspense fallback={<Skeleton className='h-40 w-full rounded-3xl md:mt-16' />}>
-        <HeaderSection
-          chainsName={chainsName}
-          chainsDocumentationLink={chainsDocumentationLink}
-          className='rounded-3xl border-2 border-border bg-cover py-5 backdrop-blur-md md:mt-16 md:bg-contain md:py-10'
-        />
-      </Suspense>
+      <BorderedContainer
+        className='bg-cover md:mt-16 md:bg-contain'
+        style={{
+          background: `url(${stepBackground}) no-repeat`
+        }}
+      >
+        <Suspense fallback={<Skeleton className='h-40 w-[95%] rounded-3xl' />}>
+          <HeaderSection
+            chainsName={chainsName}
+            chainsDocumentationLink={chainsDocumentationLink}
+          />
+        </Suspense>
+      </BorderedContainer>
 
-      <div className='flex flex-col items-center gap-y-5 rounded-3xl border-2 border-border py-5 backdrop-blur-md md:gap-y-10 md:py-10'>
+      <BorderedContainer>
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <TemplatesSection
             chainsName={chainsName}
@@ -368,7 +376,7 @@ export default function HomePage() {
               <Button
                 disabled={isGenerationLoading}
                 onClick={() => initCreation()}
-                className='w-full md:w-52'
+                className='w-full md:w-60'
               >
                 {isGenerationLoading ? (
                   <div className='flex items-center gap-x-2.5'>
@@ -384,15 +392,19 @@ export default function HomePage() {
             </div>
           </div>
         </Suspense>
+      </BorderedContainer>
 
-        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
-          {auditContractState.isSuccess && auditContractState.audit ? (
+      {auditContractState.isSuccess && auditContractState.audit ? (
+        <BorderedContainer>
+          <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
             <AuditSection chainsName={chainsName} audit={auditContractState.audit} />
-          ) : null}
-        </Suspense>
+          </Suspense>
+        </BorderedContainer>
+      ) : null}
 
-        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
-          {generateContractState.contractCode && (
+      {generateContractState.contractCode ? (
+        <BorderedContainer>
+          <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
             <CodeViewerSection
               chainsName={chainsName}
               smartContractCode={generateContractState.contractCode}
@@ -400,9 +412,9 @@ export default function HomePage() {
               contractArtifacts={isGenerationCompleted ? compileContractState.artifact : null}
               onDeployContractClick={deployContract}
             />
-          )}
-        </Suspense>
-      </div>
+          </Suspense>
+        </BorderedContainer>
+      ) : null}
     </div>
   );
 }
