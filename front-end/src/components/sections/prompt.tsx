@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
+import type { TPrompt } from '@/sdk/src/db-schemas/prompts';
 
 import PredefinedPromptsModal from '../predefined-prompts-modal';
 import { Textarea } from '../ui/textarea';
@@ -8,16 +8,16 @@ import SectionContainer from './container';
 
 interface IPromptSection {
   chainsName: string;
-  predefinedPrompts: IPredefinedPrompt[];
-  prompt: string;
-  setPrompt: React.Dispatch<React.SetStateAction<string>>;
+  predefinedPrompts: TPrompt[] | null;
+  userPrompt: string;
+  setUserPrompt: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function PromptSection({
   chainsName,
   predefinedPrompts,
-  prompt,
-  setPrompt
+  userPrompt,
+  setUserPrompt
 }: IPromptSection) {
   return (
     <SectionContainer>
@@ -28,17 +28,23 @@ export default function PromptSection({
 
       <div className='relative'>
         <Textarea
-          value={prompt}
-          placeholder='Insert token name, supply and others customisations'
-          className='mt-5 h-60 w-full resize-none rounded-3xl p-5'
-          onChange={(event) => setPrompt(event.target.value)}
+          value={userPrompt}
+          placeholder={
+            predefinedPrompts && predefinedPrompts.length > 0
+              ? `i. e. ${predefinedPrompts[0].description}`
+              : `Type the customisations for your ${chainsName} Smart Contract`
+          }
+          className='mt-5 h-60 w-full resize-none rounded-3xl p-5 placeholder:italic'
+          onChange={(event) => setUserPrompt(event.target.value)}
         />
 
-        <PredefinedPromptsModal
-          predefinedPrompts={predefinedPrompts}
-          setPrompt={setPrompt}
-          triggerClassName='absolute bottom-5 right-5 md:top-5'
-        />
+        {predefinedPrompts && predefinedPrompts.length > 0 ? (
+          <PredefinedPromptsModal
+            predefinedPrompts={predefinedPrompts}
+            setUserPrompt={setUserPrompt}
+            triggerClassName='absolute bottom-5 right-5 md:top-5'
+          />
+        ) : null}
       </div>
     </SectionContainer>
   );

@@ -1,6 +1,5 @@
-import React, { Suspense, useReducer, useState } from 'react';
+import React, { Suspense, useEffect, useReducer, useState } from 'react';
 
-import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
 import type { ContractType } from '@/sdk/src/types';
 
@@ -16,6 +15,10 @@ import {
   generateContractInitialState,
   generateContractReducer
 } from '@/reducers/generate-contract';
+import {
+  predefinedPromptsInitialState,
+  predefinedPromptsReducer
+} from '@/reducers/predefined-prompts';
 import { LlmService } from '@/sdk/llmService.sdk';
 
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
@@ -54,13 +57,6 @@ const templates: ITemplate[] = [
   }
 ];
 
-const predefinedPrompts: IPredefinedPrompt[] = [
-  {
-    id: '65827f546828e956077b7545',
-    title: 'ERC20 Token',
-    description: 'Token name must be X , with ticket Y and a total supply of 100000.'
-  }
-];
 const smartContractFileExtension = '.cairo';
 
 export default function HomePage() {
@@ -68,7 +64,12 @@ export default function HomePage() {
   const activeTemplates = templates.filter((template) => template.isActive);
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
-  const [prompt, setPrompt] = useState('');
+  const [userPrompt, setUserPrompt] = useState('');
+
+  const [predefinedPromptsState, dispatchPredefinedPrompts] = useReducer(
+    predefinedPromptsReducer,
+    predefinedPromptsInitialState
+  );
 
   const [generateContractState, dispatchGenerateContract] = useReducer(
     generateContractReducer,
@@ -84,6 +85,48 @@ export default function HomePage() {
     auditContractReducer,
     auditContractInitialState
   );
+
+  useEffect(() => {
+    async function getPredefinedPromptsByTemplate() {
+      try {
+        dispatchPredefinedPrompts({
+          state: EReducerState.reset,
+          payload: null
+        });
+
+        const promptsResponse = await LlmService.getPromptByTemplate(
+          activeTemplateName as ContractType
+        );
+
+        if (!promptsResponse || !Array.isArray(promptsResponse)) {
+          dispatchPredefinedPrompts({
+            state: EReducerState.error,
+            payload: null
+          });
+
+          return;
+        }
+
+        setUserPrompt('');
+        dispatchPredefinedPrompts({
+          state: EReducerState.success,
+          payload: promptsResponse
+        });
+
+        console.log('promptsResponse', promptsResponse);
+      } catch (error) {
+        dispatchPredefinedPrompts({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR FETCHING PROMPTS BY TEMPLATE', error);
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    getPredefinedPromptsByTemplate();
+  }, [activeTemplateName]);
 
   const isGenerationLoading =
     generateContractState.isLoading ||
@@ -164,7 +207,7 @@ export default function HomePage() {
       });
 
       const contractCodeResponse = await LlmService.callCairoGeneratorLLM(
-        prompt,
+        userPrompt,
         activeTemplateName as ContractType
       );
 
@@ -316,9 +359,9 @@ export default function HomePage() {
           <div className='flex w-full flex-col items-start'>
             <PromptSection
               chainsName={chainsName}
-              predefinedPrompts={predefinedPrompts}
-              prompt={prompt}
-              setPrompt={setPrompt}
+              predefinedPrompts={predefinedPromptsState.prompts}
+              userPrompt={userPrompt}
+              setUserPrompt={setUserPrompt}
             />
 
             <div className='mt-5 flex w-full flex-col items-center justify-center gap-y-5 px-5 md:flex-row md:items-start md:justify-between md:px-10'>
