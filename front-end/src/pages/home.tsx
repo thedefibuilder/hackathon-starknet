@@ -334,24 +334,7 @@ export default function HomePage() {
   }
 
   async function deployContract() {
-    const { classHash, ...contractArtifact } = compileContractState.artifact!;
-
-    if (window.starknet?.isConnected) {
-      const account = new Account(
-        window.starknet.account.provider,
-        window.starknet.account.address,
-        window.starknet.account.signer
-      );
-      console.log('class hash', classHash);
-      console.log(account.address);
-      console.log(account.signer);
-      const contractTx = await account.declare({
-        contract: contractArtifact,
-        compiledClassHash: '0x0317d3ac2cf840e487b6d0014a75f0cf507dff0bc143c710388e323487089bfa'
-      });
-    }
-
-    console.log('COULD NOT DEPLOY CONTRACT');
+    // TODO
   }
 
   return (

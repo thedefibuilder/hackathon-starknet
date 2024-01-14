@@ -32,16 +32,15 @@ export class LlmService {
   }
 
   async callCairoGeneratorLLM(customization: string, contractType: TContractType): Promise<string> {
-    // const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
-    // const templateDoc = await SDoc.findOne({ template: contractType });
-    // const responseCode = await cairoGeneratorAgent().invoke({
-    //   docs,
-    //   example: templateDoc?.example || '',
-    //   customization,
-    // });
+    const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
+    const templateDoc = await SDoc.findOne({ template: contractType });
+    const responseCode = await cairoGeneratorAgent().invoke({
+      docs,
+      example: templateDoc?.example || '',
+      customization,
+    });
 
-    const code = '#[starknet::contract]\nmod erc20_token {\n    #[storage]\n    struct Storage {\n     }\n}\n';
-    return code;
+    return this.trimCode(responseCode);
   }
 
   async buildCairoCode(smartContractCode: string): Promise<TBuildResponse> {
@@ -60,11 +59,11 @@ export class LlmService {
   }
 
   async callAuditorLLM(code: string): Promise<TVulnerability[]> {
-    // const response = await auditorAgent().invoke({
-    //   code: code,
-    // });
+    const response = await auditorAgent().invoke({
+      code: code,
+    });
 
-    return [];
+    return auditJsonSchema.parse(response).audits;
   }
 
   async callBuildResolverLLM(code: string, compilerError: string): Promise<string> {
