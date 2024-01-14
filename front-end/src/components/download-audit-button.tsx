@@ -19,7 +19,7 @@ export default function DownloadAuditButton({ audit }: IDownloadAuditButton) {
 
   return (
     <DownloadButton
-      className='w-40'
+      className='mt-5 w-full md:mt-0 md:w-40'
       onButtonClick={async () => {
         setIsGeneratingPdf(true);
 
