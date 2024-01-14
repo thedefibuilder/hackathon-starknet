@@ -301,11 +301,6 @@ export default function HomePage() {
     }
   }
 
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  async function deployContract() {
-    // TODO
-  }
-
   return (
     <div className='flex w-full max-w-[1140px] flex-col gap-y-5'>
       <BorderedContainer
@@ -376,7 +371,6 @@ export default function HomePage() {
               smartContractCode={generateContractState.contractCode}
               smartContractFileExtension={chainConfig.contractFileExtension}
               contractArtifacts={isGenerationCompleted ? compileContractState.artifact : null}
-              onDeployContractClick={deployContract}
             />
           </Suspense>
         </BorderedContainer>

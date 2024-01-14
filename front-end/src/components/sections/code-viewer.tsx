@@ -1,3 +1,5 @@
+/* eslint-disable sonarjs/no-duplicate-string */
+
 import React from 'react';
 
 import type IArtifact from '@/interfaces/artifact';
@@ -7,7 +9,6 @@ import downloadContent from '@/lib/download';
 
 import CopyButton from '../copy-button';
 import DownloadButton from '../download-button';
-import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import SectionContainer from './container';
 
@@ -16,15 +17,13 @@ interface ISmartContractCodeSection {
   smartContractCode: string;
   smartContractFileExtension: string;
   contractArtifacts: IArtifact | null;
-  onDeployContractClick: () => void;
 }
 
 export default function CodeViewerSection({
   chainsName,
   smartContractCode,
   smartContractFileExtension,
-  contractArtifacts,
-  onDeployContractClick
+  contractArtifacts
 }: ISmartContractCodeSection) {
   return (
     <SectionContainer>
@@ -37,9 +36,33 @@ export default function CodeViewerSection({
         </div>
 
         {contractArtifacts && (
-          <Button className='mt-5 w-full md:mt-0 md:w-auto' onClick={onDeployContractClick}>
-            Deploy Smart Contract
-          </Button>
+          <div className='mt-5 flex w-full flex-col gap-5 md:mt-0 md:w-auto md:flex-row'>
+            <DownloadButton
+              className='w-full md:w-auto'
+              onButtonClick={async () => {
+                downloadContent(
+                  JSON.stringify(contractArtifacts.sierra),
+                  'sierra-artifact.json',
+                  'text/plain'
+                );
+              }}
+            >
+              <span>Download Sierra Artifact</span>
+            </DownloadButton>
+
+            <DownloadButton
+              className='w-full md:w-auto'
+              onButtonClick={async () => {
+                downloadContent(
+                  JSON.stringify(contractArtifacts.casm),
+                  'casm-artifact.json',
+                  'text/plain'
+                );
+              }}
+            >
+              <span>Download Casm Artifact</span>
+            </DownloadButton>
+          </div>
         )}
       </div>
 
