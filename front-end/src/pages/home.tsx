@@ -1,7 +1,7 @@
 import React, { Suspense, useReducer, useState } from 'react';
 
-import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
+import type { TPrompt } from '@/sdk/src/db-schemas/prompts';
 import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
@@ -54,10 +54,10 @@ const templates: ITemplate[] = [
   }
 ];
 
-const predefinedPrompts: IPredefinedPrompt[] = [
+const predefinedPrompts: TPrompt[] = [
   {
-    id: '65827f546828e956077b7545',
     title: 'ERC20 Token',
+    template: 'ERC20 Token',
     description: 'Token name must be X , with ticket Y and a total supply of 100000.'
   }
 ];

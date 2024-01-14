@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
+import type { TPrompt } from '@/sdk/src/db-schemas/prompts';
 
 import PredefinedPromptsModal from '../predefined-prompts-modal';
 import { Textarea } from '../ui/textarea';
@@ -8,7 +8,7 @@ import SectionContainer from './container';
 
 interface IPromptSection {
   chainsName: string;
-  predefinedPrompts: IPredefinedPrompt[];
+  predefinedPrompts: TPrompt[];
   prompt: string;
   setPrompt: React.Dispatch<React.SetStateAction<string>>;
 }

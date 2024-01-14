@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
+import type { TPrompt } from '@/sdk/src/db-schemas/prompts';
 
 import { Wand2 } from 'lucide-react';
 
@@ -15,7 +15,7 @@ import {
 import { Button } from './ui/button';
 
 interface IPredefinedPromptsModal {
-  predefinedPrompts: IPredefinedPrompt[];
+  predefinedPrompts: TPrompt[];
   setPrompt: React.Dispatch<React.SetStateAction<string>>;
   triggerClassName?: string;
 }
@@ -40,7 +40,7 @@ export default function PredefinedPromptsModal({
 
           <ul className='flex flex-col'>
             {predefinedPrompts.map((prompt) => (
-              <li key={prompt.id} className='w-full'>
+              <li key={prompt.template} className='w-full'>
                 <Button
                   variant='secondary'
                   className='flex h-min w-full flex-col items-start justify-start gap-y-2.5 px-2.5 py-2.5'
