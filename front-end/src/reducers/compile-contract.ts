@@ -1,5 +1,6 @@
+import type IArtifact from '@/interfaces/artifact';
+
 import EReducerState from '@/constants/reducer-state';
-import IArtifact from '@/interfaces/artifact';
 
 const compileContractInitialState = {
   isLoading: false,
@@ -57,4 +58,3 @@ function compileContractReducer(state: TCompileContractState, action: ICompileCo
 
 export type { TCompileContractState, ICompileContractAction };
 export { compileContractInitialState, compileContractReducer };
-

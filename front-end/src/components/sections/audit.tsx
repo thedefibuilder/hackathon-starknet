@@ -161,4 +161,3 @@ function calculateAuditScore(audit: TVulnerability[]) {
 
   return Number(((totalScore / maxScore) * 100).toFixed(2));
 }
-

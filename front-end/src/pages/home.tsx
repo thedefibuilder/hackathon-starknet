@@ -1,10 +1,10 @@
 import React, { Suspense, useEffect, useReducer, useState } from 'react';
 
+import type IArtifact from '@/interfaces/artifact';
 import type ITemplate from '@/interfaces/template';
 import type { TContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
-import { Account } from 'starknet';
 
 import stepBackground from '@/assets/images/step.svg';
 import BorderedContainer from '@/components/bordered-container';
@@ -277,7 +277,7 @@ export default function HomePage() {
 
       dispatchCompileContract({
         state: EReducerState.success,
-        payload: compileContractResponse.artifact
+        payload: compileContractResponse.artifact as IArtifact
       });
 
       console.log('COMPILATION RESPONSE', compileContractResponse);
@@ -333,6 +333,7 @@ export default function HomePage() {
     }
   }
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
   async function deployContract() {
     // TODO
   }
@@ -418,4 +419,3 @@ export default function HomePage() {
     </div>
   );
 }
-

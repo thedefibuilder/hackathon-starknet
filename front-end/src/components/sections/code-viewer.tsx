@@ -1,6 +1,7 @@
 import React from 'react';
 
-import IArtifact from '@/interfaces/artifact';
+import type IArtifact from '@/interfaces/artifact';
+
 import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
 import downloadContent from '@/lib/download';
 
@@ -72,4 +73,3 @@ export default function CodeViewerSection({
     </SectionContainer>
   );
 }
-

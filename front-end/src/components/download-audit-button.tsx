@@ -40,4 +40,3 @@ export default function DownloadAuditButton({ audit }: IDownloadAuditButton) {
     </DownloadButton>
   );
 }
-
