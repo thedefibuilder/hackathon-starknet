@@ -38,7 +38,7 @@ export default function TemplatesSection({
               className={cn(
                 'flex h-max w-full flex-col items-center gap-y-2.5 whitespace-normal rounded-3xl border-2 p-2.5 text-center lg:h-full lg:p-1',
                 {
-                  'border-primary hover:bg-transparent': activeTemplateName === template.name
+                  'border-primary hover:bg-background': activeTemplateName === template.name
                 }
               )}
               disabled={!template.isActive}
