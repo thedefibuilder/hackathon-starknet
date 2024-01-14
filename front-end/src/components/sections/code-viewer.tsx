@@ -64,7 +64,7 @@ export default function CodeViewerSection({
           onButtonClick={() =>
             downloadContent(
               smartContractCode,
-              `smart-contract.${smartContractFileExtension}`,
+              `smart-contract${smartContractFileExtension}`,
               'text/plain'
             )
           }

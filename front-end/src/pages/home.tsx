@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect, useReducer, useState } from 'react';
 
 import type IArtifact from '@/interfaces/artifact';
-import type ITemplate from '@/interfaces/template';
 import type { TContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
@@ -11,6 +10,7 @@ import BorderedContainer from '@/components/bordered-container';
 import ContractCreationSteps from '@/components/contract-creation-steps';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import chainConfig from '@/config/chain';
 import EReducerState from '@/constants/reducer-state';
 import { auditContractInitialState, auditContractReducer } from '@/reducers/audit-contract';
 import { compileContractInitialState, compileContractReducer } from '@/reducers/compile-contract';
@@ -30,41 +30,9 @@ const PromptSection = React.lazy(() => import('@/components/sections/prompt'));
 const AuditSection = React.lazy(() => import('@/components/sections/audit'));
 const CodeViewerSection = React.lazy(() => import('@/components/sections/code-viewer'));
 
-const chainsName = 'Starknet';
-const chainsDocumentationLink = 'https://docs.defibuilder.com/';
-
-const templates: ITemplate[] = [
-  {
-    name: 'Token',
-    isActive: true
-  },
-  {
-    name: 'NFT',
-    isActive: true
-  },
-  {
-    name: 'Edition',
-    isActive: true
-  },
-  {
-    name: 'Vault',
-    isActive: true
-  },
-  {
-    name: 'Marketplace',
-    isActive: true
-  },
-  {
-    name: 'Exchange',
-    isActive: true
-  }
-];
-
-const smartContractFileExtension = '.cairo';
-
 export default function HomePage() {
   // eslint-disable-next-line unicorn/prefer-array-find
-  const activeTemplates = templates.filter((template) => template.isActive);
+  const activeTemplates = chainConfig.templates.filter((template) => template.isActive);
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
   const [userPrompt, setUserPrompt] = useState('');
@@ -347,18 +315,15 @@ export default function HomePage() {
         }}
       >
         <Suspense fallback={<Skeleton className='h-40 w-[95%] rounded-3xl' />}>
-          <HeaderSection
-            chainsName={chainsName}
-            chainsDocumentationLink={chainsDocumentationLink}
-          />
+          <HeaderSection chainsName={chainConfig.name} chainsDocumentationLink={chainConfig.docs} />
         </Suspense>
       </BorderedContainer>
 
       <BorderedContainer>
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <TemplatesSection
-            chainsName={chainsName}
-            templates={templates}
+            chainsName={chainConfig.name}
+            templates={chainConfig.templates}
             activeTemplateName={activeTemplateName}
             setActiveTemplateName={setActiveTemplateName}
           />
@@ -367,7 +332,7 @@ export default function HomePage() {
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           <div className='flex w-full flex-col items-start'>
             <PromptSection
-              chainsName={chainsName}
+              chainsName={chainConfig.name}
               predefinedPrompts={predefinedPromptsState.prompts}
               userPrompt={userPrompt}
               setUserPrompt={setUserPrompt}
@@ -398,7 +363,7 @@ export default function HomePage() {
       {auditContractState.isSuccess && auditContractState.audit ? (
         <BorderedContainer>
           <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
-            <AuditSection chainsName={chainsName} audit={auditContractState.audit} />
+            <AuditSection chainsName={chainConfig.name} audit={auditContractState.audit} />
           </Suspense>
         </BorderedContainer>
       ) : null}
@@ -407,9 +372,9 @@ export default function HomePage() {
         <BorderedContainer>
           <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
             <CodeViewerSection
-              chainsName={chainsName}
+              chainsName={chainConfig.name}
               smartContractCode={generateContractState.contractCode}
-              smartContractFileExtension={smartContractFileExtension}
+              smartContractFileExtension={chainConfig.contractFileExtension}
               contractArtifacts={isGenerationCompleted ? compileContractState.artifact : null}
               onDeployContractClick={deployContract}
             />
