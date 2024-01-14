@@ -43,7 +43,7 @@ export default function PredefinedPromptsModal({
               <li key={prompt.template} className='w-full'>
                 <Button
                   variant='secondary'
-                  className='flex h-min w-full flex-col items-start justify-start gap-y-2.5 px-2.5 py-2.5'
+                  className='flex h-min w-full flex-col items-start justify-start gap-y-2.5 whitespace-normal p-2.5 text-left'
                   onClick={() => {
                     setUserPrompt(prompt.description);
                     setIsDialogOpen(false);
