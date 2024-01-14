@@ -7,7 +7,7 @@ import { buildResolverAgent } from './agents/build-resolve';
 import { cairoGeneratorAgent } from './agents/cairo-generate';
 import SDoc from './db-schemas/docs';
 import SPrompt, { TPrompt } from './db-schemas/prompts';
-import { BuildResponse, ContractType, Vulnerability } from './types';
+import { TBuildResponse, TContractType, TVulnerability } from './types';
 
 dotenv.config();
 
@@ -27,11 +27,11 @@ export class LlmService {
     return SPrompt.find({});
   }
 
-  async getPromptByTemplate(template: ContractType): Promise<TPrompt[]> {
+  async getPromptByTemplate(template: TContractType): Promise<TPrompt[]> {
     return SPrompt.find({ template });
   }
 
-  async callCairoGeneratorLLM(customization: string, contractType: ContractType): Promise<string> {
+  async callCairoGeneratorLLM(customization: string, contractType: TContractType): Promise<string> {
     const docs = readFileSync(process.cwd() + '/data/starknet-by-example.md', 'utf-8');
     const templateDoc = await SDoc.findOne({ template: contractType });
     const responseCode = await cairoGeneratorAgent().invoke({
@@ -43,7 +43,7 @@ export class LlmService {
     return this.trimCode(responseCode);
   }
 
-  async buildCairoCode(smartContractCode: string): Promise<BuildResponse> {
+  async buildCairoCode(smartContractCode: string): Promise<TBuildResponse> {
     const buildResponse = await fetch(`https://compiler-service.defibuilder.com/api/v1/starknet`, {
       method: 'POST',
       headers: {
@@ -53,12 +53,12 @@ export class LlmService {
       body: JSON.stringify({ code: smartContractCode }),
     });
 
-    const responseData = (await buildResponse.json()) as BuildResponse;
+    const responseData = (await buildResponse.json()) as TBuildResponse;
 
     return { ...responseData, code: smartContractCode };
   }
 
-  async callAuditorLLM(code: string): Promise<Vulnerability[]> {
+  async callAuditorLLM(code: string): Promise<TVulnerability[]> {
     const response = await auditorAgent().invoke({
       code: code,
     });

@@ -10,7 +10,7 @@ export default function Footer() {
 
   return (
     <footer className='flex h-10 w-full items-center justify-center border-t border-border text-sm'>
-      made with &nbsp;
+      Made with &nbsp;
       <Heart className='h-4 w-4 text-red-500' /> &nbsp; by the
       <ExternalAnchor
         href={website}
@@ -22,3 +22,4 @@ export default function Footer() {
     </footer>
   );
 }
+

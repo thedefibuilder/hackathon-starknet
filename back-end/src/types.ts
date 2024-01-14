@@ -1,21 +1,16 @@
-export type GeneratorPromptArgs = {
-  description: string;
-  contractType: string;
-};
-
-export type BuildResponse = {
+export type TBuildResponse = {
   success: boolean;
   message: string;
   artifact: unknown;
   code: string;
 };
 
-export type Vulnerability = {
+export type TVulnerability = {
   title: string;
   description: string;
-  severity: VulnerabilitySeverity;
+  severity: TVulnerabilitySeverity;
 };
 
-export type VulnerabilitySeverity = 'High' | 'Medium' | 'Low';
+export type TVulnerabilitySeverity = 'High' | 'Medium' | 'Low';
 
-export type ContractType = 'Token' | 'NFT' | 'Edition' | 'Vault' | 'Marketplace' | 'Exchange';
+export type TContractType = 'Token' | 'NFT' | 'Edition' | 'Vault' | 'Marketplace' | 'Exchange';

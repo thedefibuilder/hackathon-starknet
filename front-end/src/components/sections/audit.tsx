@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 
-import type { Vulnerability, VulnerabilitySeverity } from '@/sdk/src/types';
+import type { TVulnerability, TVulnerabilitySeverity } from '@/sdk/src/types';
 
 import { cn } from '@/lib/utils';
 
@@ -16,7 +16,7 @@ const DownloadAuditButton = React.lazy(() => import('../download-audit-button'))
 
 interface IAuditSection {
   chainsName: string;
-  audit: Vulnerability[];
+  audit: TVulnerability[];
 }
 
 export default function AuditSection({ chainsName, audit }: IAuditSection) {
@@ -129,14 +129,14 @@ export default function AuditSection({ chainsName, audit }: IAuditSection) {
   );
 }
 
-function calculateAuditScore(audit: Vulnerability[]) {
-  const severityValue: { [key in VulnerabilitySeverity]: number } = {
+function calculateAuditScore(audit: TVulnerability[]) {
+  const severityValue: { [key in TVulnerabilitySeverity]: number } = {
     Low: 3,
     Medium: 2,
     High: 1
   };
 
-  const severityOccurrences: { [key in VulnerabilitySeverity]: number } = {
+  const severityOccurrences: { [key in TVulnerabilitySeverity]: number } = {
     Low: 0,
     Medium: 0,
     High: 0
@@ -161,3 +161,4 @@ function calculateAuditScore(audit: Vulnerability[]) {
 
   return Number(((totalScore / maxScore) * 100).toFixed(2));
 }
+
