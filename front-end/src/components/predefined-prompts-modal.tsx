@@ -16,13 +16,13 @@ import { Button } from './ui/button';
 
 interface IPredefinedPromptsModal {
   predefinedPrompts: TPrompt[];
-  setPrompt: React.Dispatch<React.SetStateAction<string>>;
+  setUserPrompt: React.Dispatch<React.SetStateAction<string>>;
   triggerClassName?: string;
 }
 
 export default function PredefinedPromptsModal({
   predefinedPrompts,
-  setPrompt,
+  setUserPrompt,
   triggerClassName
 }: IPredefinedPromptsModal) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -45,7 +45,7 @@ export default function PredefinedPromptsModal({
                   variant='secondary'
                   className='flex h-min w-full flex-col items-start justify-start gap-y-2.5 px-2.5 py-2.5'
                   onClick={() => {
-                    setPrompt(prompt.description);
+                    setUserPrompt(prompt.description);
                     setIsDialogOpen(false);
                   }}
                 >

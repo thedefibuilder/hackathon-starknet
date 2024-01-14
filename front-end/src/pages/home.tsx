@@ -68,7 +68,7 @@ export default function HomePage() {
   const activeTemplates = templates.filter((template) => template.isActive);
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
-  const [prompt, setPrompt] = useState('');
+  const [userPrompt, setUserPrompt] = useState('');
 
   const [generateContractState, dispatchGenerateContract] = useReducer(
     generateContractReducer,
@@ -164,7 +164,7 @@ export default function HomePage() {
       });
 
       const contractCodeResponse = await LlmService.callCairoGeneratorLLM(
-        prompt,
+        userPrompt,
         activeTemplateName as ContractType
       );
 
@@ -317,8 +317,8 @@ export default function HomePage() {
             <PromptSection
               chainsName={chainsName}
               predefinedPrompts={predefinedPrompts}
-              prompt={prompt}
-              setPrompt={setPrompt}
+              userPrompt={userPrompt}
+              setUserPrompt={setUserPrompt}
             />
 
             <div className='mt-5 flex w-full flex-col items-center justify-center gap-y-5 px-5 md:flex-row md:items-start md:justify-between md:px-10'>

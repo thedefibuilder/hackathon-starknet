@@ -9,15 +9,15 @@ import SectionContainer from './container';
 interface IPromptSection {
   chainsName: string;
   predefinedPrompts: TPrompt[];
-  prompt: string;
-  setPrompt: React.Dispatch<React.SetStateAction<string>>;
+  userPrompt: string;
+  setUserPrompt: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function PromptSection({
   chainsName,
   predefinedPrompts,
-  prompt,
-  setPrompt
+  userPrompt,
+  setUserPrompt
 }: IPromptSection) {
   return (
     <SectionContainer>
@@ -28,15 +28,15 @@ export default function PromptSection({
 
       <div className='relative'>
         <Textarea
-          value={prompt}
+          value={userPrompt}
           placeholder='Insert token name, supply and others customisations'
           className='mt-5 h-60 w-full resize-none rounded-3xl p-5'
-          onChange={(event) => setPrompt(event.target.value)}
+          onChange={(event) => setUserPrompt(event.target.value)}
         />
 
         <PredefinedPromptsModal
           predefinedPrompts={predefinedPrompts}
-          setPrompt={setPrompt}
+          setUserPrompt={setUserPrompt}
           triggerClassName='absolute bottom-5 right-5 md:top-5'
         />
       </div>
