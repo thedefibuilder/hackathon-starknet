@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import type IAudit from '@/interfaces/audit';
+import type { Vulnerability } from '@/sdk/src/types';
 
 import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
 });
 
 interface IAuditPdf {
-  audit: IAudit[];
+  audit: Vulnerability[];
   title?: string;
   author?: string;
 }

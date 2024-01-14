@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import type IAudit from '@/interfaces/audit';
+import type { Vulnerability } from '@/sdk/src/types';
 
 import { pdf } from '@react-pdf/renderer';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +11,7 @@ import AuditPdf from './audit-pdf';
 import DownloadButton from './download-button';
 
 interface IDownloadAuditButton {
-  audit: IAudit[];
+  audit: Vulnerability[];
 }
 
 export default function DownloadAuditButton({ audit }: IDownloadAuditButton) {
