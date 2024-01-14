@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useReducer, useState } from 'react';
 
 import type ITemplate from '@/interfaces/template';
-import type { ContractType } from '@/sdk/src/types';
+import type { TContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
 import { Account } from 'starknet';
@@ -98,7 +98,7 @@ export default function HomePage() {
         });
 
         const promptsResponse = await LlmService.getPromptByTemplate(
-          activeTemplateName as ContractType
+          activeTemplateName as TContractType
         );
 
         if (!promptsResponse || !Array.isArray(promptsResponse)) {
@@ -211,7 +211,7 @@ export default function HomePage() {
 
       const contractCodeResponse = await LlmService.callCairoGeneratorLLM(
         userPrompt,
-        activeTemplateName as ContractType
+        activeTemplateName as TContractType
       );
 
       if (

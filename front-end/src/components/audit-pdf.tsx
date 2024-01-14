@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import type { Vulnerability } from '@/sdk/src/types';
+import type { TVulnerability } from '@/sdk/src/types';
 
 import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
 });
 
 interface IAuditPdf {
-  audit: Vulnerability[];
+  audit: TVulnerability[];
   title?: string;
   author?: string;
 }
@@ -82,3 +82,4 @@ export default function AuditPdf({
     </Document>
   );
 }
+
