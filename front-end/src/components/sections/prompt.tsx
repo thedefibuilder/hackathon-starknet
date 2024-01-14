@@ -8,7 +8,7 @@ import SectionContainer from './container';
 
 interface IPromptSection {
   chainsName: string;
-  predefinedPrompts: TPrompt[];
+  predefinedPrompts: TPrompt[] | null;
   userPrompt: string;
   setUserPrompt: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -34,11 +34,13 @@ export default function PromptSection({
           onChange={(event) => setUserPrompt(event.target.value)}
         />
 
-        <PredefinedPromptsModal
-          predefinedPrompts={predefinedPrompts}
-          setUserPrompt={setUserPrompt}
-          triggerClassName='absolute bottom-5 right-5 md:top-5'
-        />
+        {predefinedPrompts && predefinedPrompts.length > 0 ? (
+          <PredefinedPromptsModal
+            predefinedPrompts={predefinedPrompts}
+            setUserPrompt={setUserPrompt}
+            triggerClassName='absolute bottom-5 right-5 md:top-5'
+          />
+        ) : null}
       </div>
     </SectionContainer>
   );

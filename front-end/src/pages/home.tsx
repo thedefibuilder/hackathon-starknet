@@ -1,7 +1,6 @@
-import React, { Suspense, useReducer, useState } from 'react';
+import React, { Suspense, useEffect, useReducer, useState } from 'react';
 
 import type ITemplate from '@/interfaces/template';
-import type { TPrompt } from '@/sdk/src/db-schemas/prompts';
 import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
@@ -16,6 +15,10 @@ import {
   generateContractInitialState,
   generateContractReducer
 } from '@/reducers/generate-contract';
+import {
+  predefinedPromptsInitialState,
+  predefinedPromptsReducer
+} from '@/reducers/predefined-prompts';
 import { LlmService } from '@/sdk/llmService.sdk';
 
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
@@ -54,13 +57,6 @@ const templates: ITemplate[] = [
   }
 ];
 
-const predefinedPrompts: TPrompt[] = [
-  {
-    title: 'ERC20 Token',
-    template: 'ERC20 Token',
-    description: 'Token name must be X , with ticket Y and a total supply of 100000.'
-  }
-];
 const smartContractFileExtension = '.cairo';
 
 export default function HomePage() {
@@ -69,6 +65,11 @@ export default function HomePage() {
 
   const [activeTemplateName, setActiveTemplateName] = useState(activeTemplates[0].name);
   const [userPrompt, setUserPrompt] = useState('');
+
+  const [predefinedPromptsState, dispatchPredefinedPrompts] = useReducer(
+    predefinedPromptsReducer,
+    predefinedPromptsInitialState
+  );
 
   const [generateContractState, dispatchGenerateContract] = useReducer(
     generateContractReducer,
@@ -84,6 +85,48 @@ export default function HomePage() {
     auditContractReducer,
     auditContractInitialState
   );
+
+  useEffect(() => {
+    async function getPredefinedPromptsByTemplate() {
+      try {
+        dispatchPredefinedPrompts({
+          state: EReducerState.reset,
+          payload: null
+        });
+
+        const promptsResponse = await LlmService.getPromptByTemplate(
+          activeTemplateName as ContractType
+        );
+
+        if (!promptsResponse || !Array.isArray(promptsResponse)) {
+          dispatchPredefinedPrompts({
+            state: EReducerState.error,
+            payload: null
+          });
+
+          return;
+        }
+
+        setUserPrompt('');
+        dispatchPredefinedPrompts({
+          state: EReducerState.success,
+          payload: promptsResponse
+        });
+
+        console.log('promptsResponse', promptsResponse);
+      } catch (error) {
+        dispatchPredefinedPrompts({
+          state: EReducerState.error,
+          payload: null
+        });
+
+        console.error('ERROR FETCHING PROMPTS BY TEMPLATE', error);
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    getPredefinedPromptsByTemplate();
+  }, [activeTemplateName]);
 
   const isGenerationLoading =
     generateContractState.isLoading ||
@@ -316,7 +359,7 @@ export default function HomePage() {
           <div className='flex w-full flex-col items-start'>
             <PromptSection
               chainsName={chainsName}
-              predefinedPrompts={predefinedPrompts}
+              predefinedPrompts={predefinedPromptsState.prompts}
               userPrompt={userPrompt}
               setUserPrompt={setUserPrompt}
             />
