@@ -12,6 +12,9 @@
 # production
 /dist
 
+# sdk
+/src/sdk
+
 # misc
 .DS_Store
 *.pem
