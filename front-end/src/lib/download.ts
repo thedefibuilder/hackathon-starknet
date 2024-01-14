@@ -1,11 +1,12 @@
 type TContentType = 'text/plain';
 
 export default function downloadContent(
-  content: string,
+  content: Blob | string,
   fileName: string,
-  contentType: TContentType
+  contentType?: TContentType
 ) {
-  const contentBlob = new Blob([content], { type: contentType });
+  const contentBlob =
+    content instanceof Blob ? content : new Blob([content], { type: contentType });
   const url = URL.createObjectURL(contentBlob);
 
   const temporaryAnchor = document.createElement('a');

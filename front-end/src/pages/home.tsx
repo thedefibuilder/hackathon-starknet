@@ -2,6 +2,7 @@ import React, { Suspense, useReducer, useState } from 'react';
 
 import type IPredefinedPrompt from '@/interfaces/predefined-prompt';
 import type ITemplate from '@/interfaces/template';
+import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ import { LlmService } from '@/sdk/llmService.sdk';
 const HeaderSection = React.lazy(() => import('@/components/sections/header'));
 const TemplatesSection = React.lazy(() => import('@/components/sections/templates'));
 const PromptSection = React.lazy(() => import('@/components/sections/prompt'));
+const AuditSection = React.lazy(() => import('@/components/sections/audit'));
 const CodeViewerSection = React.lazy(() => import('@/components/sections/code-viewer'));
 
 const chainsName = 'Starknet';
@@ -36,19 +38,19 @@ const templates: ITemplate[] = [
   },
   {
     name: 'Edition',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Vault',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Marketplace',
-    isActive: false
+    isActive: true
   },
   {
     name: 'Exchange',
-    isActive: false
+    isActive: true
   }
 ];
 
@@ -88,7 +90,9 @@ export default function HomePage() {
     compileContractState.isLoading ||
     auditContractState.isLoading;
 
-  const isGenerationCompleted = generateContractState.isSuccess && auditContractState.isSuccess;
+  const isGenerationCompleted =
+    (generateContractState.isError || generateContractState.isSuccess) &&
+    (auditContractState.isError || auditContractState.isSuccess);
 
   const creationSteps = [
     {
@@ -159,7 +163,10 @@ export default function HomePage() {
         payload: null
       });
 
-      const contractCodeResponse = await LlmService.callCairoGeneratorLLM(prompt, 'ERC20');
+      const contractCodeResponse = await LlmService.callCairoGeneratorLLM(
+        prompt,
+        activeTemplateName as ContractType
+      );
 
       if (
         contractCodeResponse === null ||
@@ -185,14 +192,12 @@ export default function HomePage() {
 
       return contractCodeResponse;
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchGenerateContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchGenerateContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR GENERATING CONTRACT', error.message);
-      }
+      console.error('ERROR GENERATING CONTRACT', error);
     }
 
     return null;
@@ -231,14 +236,12 @@ export default function HomePage() {
 
       console.log('COMPILATION RESPONSE', compileContractResponse);
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchCompileContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchCompileContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR COMPILING CONTRACT', error.message);
-      }
+      console.error('ERROR COMPILING CONTRACT', error);
     }
   }
 
@@ -275,14 +278,12 @@ export default function HomePage() {
 
       console.log('AUDITION RESPONSE', auditContractResponse);
     } catch (error) {
-      if (error instanceof Error) {
-        dispatchAuditContract({
-          state: EReducerState.error,
-          payload: null
-        });
+      dispatchAuditContract({
+        state: EReducerState.error,
+        payload: null
+      });
 
-        console.error('ERROR AUDITING CONTRACT', error.message);
-      }
+      console.error('ERROR AUDITING CONTRACT', error);
     }
   }
 
@@ -324,7 +325,7 @@ export default function HomePage() {
               <Button
                 disabled={isGenerationLoading}
                 onClick={() => initCreation()}
-                className='w-full md:w-auto'
+                className='w-full md:w-52'
               >
                 {isGenerationLoading ? (
                   <div className='flex items-center gap-x-2.5'>
@@ -342,6 +343,12 @@ export default function HomePage() {
         </Suspense>
 
         <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
+          {auditContractState.isSuccess && auditContractState.audit ? (
+            <AuditSection chainsName={chainsName} audit={auditContractState.audit} />
+          ) : null}
+        </Suspense>
+
+        <Suspense fallback={<Skeleton className='h-60 w-[95%] rounded-3xl' />}>
           {generateContractState.contractCode && (
             <CodeViewerSection
               chainsName={chainsName}
@@ -356,4 +363,3 @@ export default function HomePage() {
     </div>
   );
 }
-

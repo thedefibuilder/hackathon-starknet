@@ -1,4 +1,4 @@
-import type IAudit from '@/interfaces/audit';
+import type { Vulnerability } from '@/sdk/src/types';
 
 import EReducerState from '@/constants/reducer-state';
 
@@ -6,14 +6,14 @@ const auditContractInitialState = {
   isLoading: false,
   isError: false,
   isSuccess: false,
-  audit: [] as IAudit[] | null
+  audit: [] as Vulnerability[] | null
 };
 
 type TAuditContractState = typeof auditContractInitialState;
 
 interface IAuditContractAction {
   state: EReducerState;
-  payload: IAudit[] | null;
+  payload: Vulnerability[] | null;
 }
 
 function auditContractReducer(state: TAuditContractState, action: IAuditContractAction) {
