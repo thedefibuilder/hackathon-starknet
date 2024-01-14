@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { CompiledSierra } from 'starknet';
+
 import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
 import downloadContent from '@/lib/download';
 
@@ -13,7 +15,7 @@ interface ISmartContractCodeSection {
   chainsName: string;
   smartContractCode: string;
   smartContractFileExtension: string;
-  contractArtifacts: string | null;
+  contractArtifacts: (CompiledSierra & { classHash: string }) | null;
   onDeployContractClick: () => void;
 }
 
@@ -71,3 +73,4 @@ export default function CodeViewerSection({
     </SectionContainer>
   );
 }
+

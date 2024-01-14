@@ -1,17 +1,19 @@
+import { CompiledSierra } from 'starknet';
+
 import EReducerState from '@/constants/reducer-state';
 
 const compileContractInitialState = {
   isLoading: false,
   isError: false,
   isSuccess: false,
-  artifact: null as string | null
+  artifact: null as (CompiledSierra & { classHash: string }) | null
 };
 
 type TCompileContractState = typeof compileContractInitialState;
 
 interface ICompileContractAction {
   state: EReducerState;
-  payload: string | null;
+  payload: (CompiledSierra & { classHash: string }) | null;
 }
 
 function compileContractReducer(state: TCompileContractState, action: ICompileContractAction) {
@@ -56,3 +58,4 @@ function compileContractReducer(state: TCompileContractState, action: ICompileCo
 
 export type { TCompileContractState, ICompileContractAction };
 export { compileContractInitialState, compileContractReducer };
+

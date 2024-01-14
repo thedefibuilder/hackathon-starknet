@@ -4,6 +4,7 @@ import type ITemplate from '@/interfaces/template';
 import type { ContractType } from '@/sdk/src/types';
 
 import { Loader2 } from 'lucide-react';
+import { Account } from 'starknet';
 
 import stepBackground from '@/assets/images/step.svg';
 import BorderedContainer from '@/components/bordered-container';
@@ -276,7 +277,7 @@ export default function HomePage() {
 
       dispatchCompileContract({
         state: EReducerState.success,
-        payload: compileContractResponse.artifact as string
+        payload: compileContractResponse.artifact
       });
 
       console.log('COMPILATION RESPONSE', compileContractResponse);
@@ -332,9 +333,25 @@ export default function HomePage() {
     }
   }
 
-  // eslint-disable-next-line unicorn/consistent-function-scoping
   async function deployContract() {
-    // TODO
+    const { classHash, ...contractArtifact } = compileContractState.artifact!;
+
+    if (window.starknet?.isConnected) {
+      const account = new Account(
+        window.starknet.account.provider,
+        window.starknet.account.address,
+        window.starknet.account.signer
+      );
+      console.log('class hash', classHash);
+      console.log(account.address);
+      console.log(account.signer);
+      const contractTx = await account.declare({
+        contract: contractArtifact,
+        compiledClassHash: '0x0317d3ac2cf840e487b6d0014a75f0cf507dff0bc143c710388e323487089bfa'
+      });
+    }
+
+    console.log('COULD NOT DEPLOY CONTRACT');
   }
 
   return (
@@ -418,3 +435,4 @@ export default function HomePage() {
     </div>
   );
 }
+
