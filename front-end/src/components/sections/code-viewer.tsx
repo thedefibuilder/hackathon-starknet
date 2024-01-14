@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { CompiledSierra } from 'starknet';
-
+import IArtifact from '@/interfaces/artifact';
 import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
 import downloadContent from '@/lib/download';
 
@@ -15,7 +14,7 @@ interface ISmartContractCodeSection {
   chainsName: string;
   smartContractCode: string;
   smartContractFileExtension: string;
-  contractArtifacts: (CompiledSierra & { classHash: string }) | null;
+  contractArtifacts: IArtifact | null;
   onDeployContractClick: () => void;
 }
 
