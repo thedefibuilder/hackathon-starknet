@@ -2,8 +2,6 @@ import React from 'react';
 
 import type ITemplate from '@/interfaces/template';
 
-import { Puzzle } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
@@ -48,7 +46,7 @@ export default function TemplatesSection({
                 }
               }}
             >
-              <Puzzle />
+              <img src={template.iconURL} />
               <span className='text-lg font-medium'>{template.name}</span>
               <span className='text-sm text-muted-foreground'>
                 Generate a {chainsName} custom {template.name}
@@ -60,3 +58,4 @@ export default function TemplatesSection({
     </SectionContainer>
   );
 }
+
