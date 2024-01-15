@@ -8,6 +8,7 @@ import { copyToClipboard, isClipboardApiSupported } from '@/lib/clipboard';
 import downloadContent from '@/lib/download';
 
 import CopyButton from '../copy-button';
+import DownloadArtifactsButton from '../download-artifacts-button';
 import DownloadButton from '../download-button';
 import { Textarea } from '../ui/textarea';
 import SectionContainer from './container';
@@ -35,35 +36,7 @@ export default function CodeViewerSection({
           </h4>
         </div>
 
-        {contractArtifacts && (
-          <div className='mt-5 flex w-full flex-col gap-5 md:mt-0 md:w-auto md:flex-row'>
-            <DownloadButton
-              className='w-full md:w-auto'
-              onButtonClick={async () => {
-                downloadContent(
-                  JSON.stringify(contractArtifacts.sierra),
-                  'sierra-artifact.json',
-                  'text/plain'
-                );
-              }}
-            >
-              <span>Download Sierra Artifact</span>
-            </DownloadButton>
-
-            <DownloadButton
-              className='w-full md:w-auto'
-              onButtonClick={async () => {
-                downloadContent(
-                  JSON.stringify(contractArtifacts.casm),
-                  'casm-artifact.json',
-                  'text/plain'
-                );
-              }}
-            >
-              <span>Download Casm Artifact</span>
-            </DownloadButton>
-          </div>
-        )}
+        {contractArtifacts && <DownloadArtifactsButton {...contractArtifacts} />}
       </div>
 
       <div className='relative'>
@@ -96,3 +69,4 @@ export default function CodeViewerSection({
     </SectionContainer>
   );
 }
+
