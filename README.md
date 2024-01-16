@@ -1,10 +1,18 @@
-# 🚀 AI Low-Code StarkNet Development Suite
+# 🚀 AI No-Code StarkNet Development Suite
 
-Defi Builder AI is an innovative platform designed for StarkNet blockchain developers. It leverages AI-driven tools to facilitate the creation, deployment, and optimization of StarkNet-based decentralized applications (dApps) using Cairo language.
+Defi Builder AI is an innovative platform designed for StarkNet blockchain enthusiasts. It leverages AI-driven tools to facilitate the creation, deployment, and optimization of StarkNet-based decentralized applications (dApps) using Cairo language.
 
 ## 🤖 Technical Overview
 
-Defi Builder AI integrates advanced AI capabilities to enhance StarkNet smart contract development in Cairo. At its core, the platform features an AI-driven smart contract generator and a suite of tools specific to StarkNet development.
+Defi Builder AI integrates advanced AI capabilities to enhance StarkNet smart contract development in Cairo. At its core, the platform features an AI-driven smart contract generator and auditor containing a suite of tools specific to StarkNet development.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=iF9Lg9LXfCE
+" target="_blank"><img src="http://img.youtube.com/vi/iF9Lg9LXfCE/0.jpg" 
+alt="Demo Video" width="100%" height="50%" border="10" /></a>
+- 📈 Presentation: [Pitch](https://drive.google.com/file/d/137TvDK2mfMiMM-Nzjv69zyWfqZtWBUpg/view?usp=sharing)
+- 🚀 Try the live app now: [Starknet AI](http://starknet.defibuilder.com/)*
+
+\*Some generations are not guaranteed to compile, please use the pre-defined prompts available in magic stick button for best efficiency.
 
 ## ✨ Features
 
@@ -13,11 +21,10 @@ Defi Builder AI integrates advanced AI capabilities to enhance StarkNet smart co
 - 🛠️ **DeFi Tool Suite**: Tools for creating custom tokens, NFTs, Editions, Marketplaces, Vaults, DEXs, specifically for StarkNet.
 - 🌐 **AI Training in Cairo**: DEFI BUILDER AI is specially trained to generate smart contracts in Cairo, the native language for StarkNet.
 - 🏦 **Web3 Wallet Integration**: DEFI BUILDER AI requires a web3 wallet connection for full operation, with added StarkNet support.
-- 🌉 **Cairo Code Compiler**: DEFI BUILDER AI includes a tool to test generated contracts using StarkNet environments.
+- 🌉 **Cairo Code Compiler**: DEFI BUILDER AI includes a tool to compile generated contracts using StarkNet environments.
 
 ## 🧠 Main Logic of the AI System in Defi Builder Starknet AI Suite
 
-🚀 Try it now: [Starknet AI](https://starknet.defibuilder.com)
 
 Defi Builder's AI system is a sophisticated ensemble of components, each designed to ensure the security, efficiency, and reliability of StarkNet smart contracts in Cairo. The system comprises three main elements: the AI Generator Agent, the Builder Backend, and the AI Auditor Backend.
 
